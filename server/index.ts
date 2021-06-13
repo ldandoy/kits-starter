@@ -6,6 +6,8 @@ import cors from 'cors'
 import cookieParser from 'cookie-parser'
 import morgan from 'morgan'
 
+import routes from './routes/index'
+
 // Middleware
 const app = express()
 app.use(express.json())
@@ -18,9 +20,7 @@ app.use(cookieParser())
 import './config/database'
 
 // Routes
-app.get('/', (req, res) => {
-    res.status(200).json({msg: "It's works !"})
-})
+app.use('/api', routes.authRouter)
 
 // server listenning
 const PORT = process.env.PORT || 5000
