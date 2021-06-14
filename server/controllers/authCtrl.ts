@@ -2,7 +2,7 @@ import { Request, Response } from 'express'
 import userModel from '../models/userModel'
 import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
-import { generateActiveToken } from '../config/generateToken'
+import { generateActiveToken, generateAccessToken, generateRefreshToken } from '../config/generateToken'
 import sendMail from '../config/sendMail'
 import { validEmail } from '../middlewares/valid'
 
@@ -29,6 +29,35 @@ const authCtrl = {
             }
         } catch (error) {
             return res.status(500).json({msg: error.message})
+        }
+    },
+    login: async(req: Request, res: Response) => {
+        try {
+            const { account, password } = req.body
+            const user = userModel.findOne({account})
+
+            if(!user) return res.status(400).json({msg: "Ce compte n'existe pas."})
+
+            const isMatch = await bcrypt.compare(password, user.password)
+
+            if (!isMatch) return res.status(400).json({msg: "Mot de passe incorrecte."})
+
+            const access_token = generateAccessToken({ id: user._id })
+            const refresh_token = generateRefreshToken({ id: user._id })
+
+            res.cookie('refreshtoken', refresh_token, {
+                httpOnly: true,
+                path: `/api/refresh_token`,
+                maxAge: 30*24*60*60*1000
+            })
+
+            res.json({
+                msg: "Login Success!",
+                access_token,
+                user
+            })
+        } catch (error) {
+            return res.status(500).json({ msg: error.message })
         }
     }
 }
