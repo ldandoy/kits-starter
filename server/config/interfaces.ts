@@ -21,3 +21,10 @@ export interface IDecodedToken {
     iat: Number
     exp:Number
 }
+
+export interface IGgPayload {
+    email: string
+    email_verified: boolean
+    name: string
+    picture: string
+  }

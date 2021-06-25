@@ -14,4 +14,6 @@ Router.get('/logout', authCtrl.logout)
 
 Router.get('/refresh_token', authCtrl.refreshToken)
 
+Router.post('/google_login', authCtrl.googleLogin)
+
 export default Router

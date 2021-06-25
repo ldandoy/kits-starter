@@ -2,11 +2,16 @@ import { Request, Response } from 'express'
 import userModel from '../models/userModel'
 import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
+import { OAuth2Client } from 'google-auth-library'
+
 import { generateActiveToken, generateAccessToken, generateRefreshToken } from '../config/generateToken'
 import sendMail from '../config/sendMail'
 import sendSms from '../config/sendSMS'
 import { validEmail, validPhone } from '../middlewares/valid'
-import { IDecodedToken } from '../config/interfaces'
+import { IDecodedToken, IGgPayload } from '../config/interfaces'
+
+const client = new OAuth2Client(`${process.env.GOOGLE_CLIENT_ID}`)
+const CLIENT_URL = `${process.env.BASE_URL}`
 
 const authCtrl = {
     register: async (req: Request, res: Response) => {
@@ -30,15 +35,18 @@ const authCtrl = {
                 }
             
                 return res.json({ 
-                    msg: 'Bravo ! Activez votre compte en cliquant sur le lien qui est dans le mail que vous avez reçu.',
-                    active_token
+                    msg: 'Bravo ! Vous avez reçu un email pour activer votre compte.',
+                    active_url: url
                 })
             } else if (validPhone(account)) {
                 if (process.env.SEND) {
-                    sendSms(account, url, "Verify your phone number")
+                    sendSms(account, url, "Vous avez reçu un SMS pour activer votre compte")
                 }
                 
-                return res.json({ msg: "Success! Please check phone." })
+                return res.json({ 
+                    msg: "Bravo ! Vous avez reçu un SMS pour activer votre compte.",
+                    active_url: url
+                })
               }
         } catch (error) {
             return res.status(500).json({msg: error.message})
@@ -50,8 +58,6 @@ const authCtrl = {
             const user = await userModel.findOne({account})
 
             if(!user) return res.status(400).json({msg: "Ce compte n'existe pas."})
-
-            console.log(account, password, user)
 
             const isMatch = await bcrypt.compare(password, user.password)
 
@@ -85,23 +91,18 @@ const authCtrl = {
     
             if(!newUser) return res.status(400).json({msg: "Invalid authentication."})
             
-            const user = new userModel(newUser)
+            const user = await userModel.findOne({ account: newUser.account })
 
-            await user.save()
+            if (user) return res.status(400).json({msg: "Ce user existe déjà."})
+
+            const new_user = new userModel(newUser)
+
+            await new_user.save()
 
             res.json({msg: "Account has been activated!"})
     
         } catch (err) {
-            let errMsg;
-    
-            if (err.code === 11000) {
-                errMsg = Object.keys(err.keyValue)[0] + " already exists."
-            } else {
-                let name = Object.keys(err.errors)[0]
-                errMsg = err.errors[`${name}`].message
-            }
-    
-            return res.status(500).json({msg: errMsg})
+            return res.status(500).json({msg: err.message})
         }
     },
     logout: async (req: Request, res: Response) => {
@@ -128,9 +129,78 @@ const authCtrl = {
 
             const access_token = generateAccessToken({id: user._id})
 
-            res.json({msg: 'Success'})
+            res.json({
+                access_token,
+                user
+            })
         } catch (error) {
             return res.status(500).json({ msg: error.message })
+        }
+    },
+    googleLogin: async(req: Request, res: Response) => {
+        try {
+          const { id_token } = req.body
+          const verify = await client.verifyIdToken({
+            idToken: id_token, audience: `${process.env.GOOGLE_CLIENT_ID}`
+          })
+    
+          const {
+            email, email_verified, name, picture
+          } = <IGgPayload>verify.getPayload()
+    
+          if (!email_verified)
+            return res.status(500).json({msg: "Email verification failed."})
+    
+          const password = email + process.env.GOOGLE_SALT
+          const passwordHash = await bcrypt.hash(password, 12)
+    
+          const user = await userModel.findOne({account: email})
+    
+          if (user) {
+            const access_token = generateAccessToken({ id: user._id })
+            const refresh_token = generateRefreshToken({ id: user._id })
+
+            res.cookie('refreshtoken', refresh_token, {
+                httpOnly: true,
+                path: `/api/refresh_token`,
+                maxAge: 30*24*60*60*1000
+            })
+
+            return res.json({
+                msg: "Login Success!",
+                access_token,
+                user: {...user._doc, password: ''}
+            })
+          } else {
+            const user = {
+              name, 
+              account: email, 
+              password: passwordHash, 
+              avatar: picture,
+              type: 'Google'
+            }
+            
+            const newUser = new userModel(user)
+            await newUser.save()
+
+            const access_token = generateAccessToken({id: newUser._id})
+            const refresh_token = generateRefreshToken({id: newUser._id})
+
+            res.cookie('refreshtoken', refresh_token, {
+                httpOnly: true,
+                path: `/api/refresh_token`,
+                maxAge: 30*24*60*60*1000 // 30days
+            })
+
+            return res.json({
+                msg: 'Login Success!',
+                access_token,
+                user: { ...newUser._doc, password: '' }
+            })
+          }
+          
+        } catch (err: any) {
+          return res.status(500).json({msg: err.message})
         }
     }
 }
