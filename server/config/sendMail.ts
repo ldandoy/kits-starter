@@ -1,17 +1,24 @@
-import nodemail from 'nodemailer'
+import nodemailer from 'nodemailer'
+import { OAuth2Client } from 'google-auth-library';
 
 const sendEmail = async (to:string, subject: string, html: string) => {
     try {
-        const transport = nodemail.createTransport({
-            host: "smtp.gmail.com",
-            port: 587,
-            secure: false,
+        const oAuth2Client = new OAuth2Client(
+            process.env.GOOGLE_CLIENT_ID, process.env.GOOGLE_CLIENT_KEY, process.env.GOOGLE_OAUTH_PLAYGROUND
+        )
+
+        oAuth2Client.setCredentials({refresh_token: process.env.GOOGLE_REFRESH_TOKEN})
+
+        const access_token = await oAuth2Client.getAccessToken()
+        
+        const transport = nodemailer.createTransport({
+            service: "gmail",
             auth: {
-                user: process.env.SENDER_USER,
-                pass: process.env.SENDER_PASSWORD
-            },
-            tls:{
-                rejectUnauthorized: false
+                type: "OAUTH2",
+                user: process.env.SENDER_MAIL_ADDRESS,
+                clientId: process.env.GOOGLE_CLIENT_ID,
+                clientSecret: process.env.GOOGLE_CLIENT_KEY,
+                refreshToken: process.env.GOOGLE_REFRESH_TOKEN
             }
         })
 
@@ -25,7 +32,7 @@ const sendEmail = async (to:string, subject: string, html: string) => {
         });
 
         const mailOptions = {
-            from: process.env.SENDER_MAIL,
+            from: process.env.SENDER_MAIL_ADDRESS,
             to: to,
             subject: subject,
             html: html

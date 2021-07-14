@@ -2,7 +2,20 @@ import { Request, Response } from 'express'
 import { IReqAuth } from '../config/interfaces'
 import Users from '../models/userModel'
 import bcrypt from 'bcrypt'
+import multer from 'multer'
+import path from 'path/posix'
 
+const storage = multer.diskStorage({
+    destination: "./public/upload/",
+    filename: function(req, file, cb) {
+        cb(null, "IMAGE-"+Date.now()+path.extname(file.originalname))
+    }
+})
+
+const upload = multer({
+    storage,
+    limits: {fileSize:1000000}
+}).single('file')
 
 const userCtrl = {
     updateUser: async (req: IReqAuth, res: Response) => {
@@ -37,6 +50,25 @@ const userCtrl = {
             })
 
             res.json({ msg: "Reset Password Success!" })
+        } catch (err: any) {
+            return res.status(500).json({msg: err.message})
+        }
+    },
+    updateProfileImage: async (req: IReqAuth, res: Response) => {
+        if(!req.user) return res.status(400).json({msg: "Invalid Authentication."})
+
+        try {
+            await upload(req, res, (err) => {
+                if (err) {
+                    console.log(err)
+                    return res.status(500).json({msg: err.code + ": " + err.message})
+                }
+
+                res.json({
+                    msg: "File uploaded!",
+                    url: process.env.BACK_HOST+":"+process.env.PORT+"/upload/"+req.file?.filename
+                })
+            })
         } catch (err: any) {
             return res.status(500).json({msg: err.message})
         }

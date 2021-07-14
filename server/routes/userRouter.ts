@@ -8,4 +8,6 @@ Router.patch('/me', auth, userCtrl.updateUser)
 
 Router.patch('/reset_password', auth, userCtrl.resetPassword)
 
+Router.post('/update_profile_image', auth, userCtrl.updateProfileImage)
+
 export default Router
