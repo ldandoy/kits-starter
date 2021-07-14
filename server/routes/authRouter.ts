@@ -16,4 +16,8 @@ Router.get('/refresh_token', authCtrl.refreshToken)
 
 Router.post('/google_login', authCtrl.googleLogin)
 
+Router.post('/forgot_password', authCtrl.forgot_password)
+
+Router.post('/reset_password/:reset_token', authCtrl.reset_password)
+
 export default Router

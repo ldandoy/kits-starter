@@ -21,6 +21,7 @@ import './config/database'
 
 // Routes
 app.use('/api', routes.authRouter)
+app.use('/api', routes.userRouter)
 
 // server listenning
 const PORT = process.env.PORT || 5000

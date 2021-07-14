@@ -4,6 +4,8 @@ import userCtrl from '../controllers/userCtrl'
 
 const Router = express.Router()
 
-Router.patch('/user', auth, userCtrl.updateUser)
+Router.patch('/me', auth, userCtrl.updateUser)
+
+Router.patch('/reset_password', auth, userCtrl.resetPassword)
 
 export default Router

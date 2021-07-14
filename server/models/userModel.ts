@@ -31,6 +31,10 @@ const userSchema = new mongoose.Schema({
     type: {
         type: String,
         default: 'normal' // [normal, fast]
+    },
+    reset_token: {
+        type: String,
+        default: ''
     }
 }, {
     timestamps: {
