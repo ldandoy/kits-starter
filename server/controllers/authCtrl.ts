@@ -5,9 +5,9 @@ import jwt from 'jsonwebtoken'
 import { OAuth2Client } from 'google-auth-library'
 import md5 from 'md5'
 
-import { generateActiveToken, generateAccessToken, generateRefreshToken } from '../config/generateToken'
-import sendMail from '../config/sendMail'
-import sendSms from '../config/sendSMS'
+import { generateActiveToken, generateAccessToken, generateRefreshToken } from '../utils/generateToken'
+import sendMail from '../utils/sendMail'
+import sendSms from '../utils/sendSMS'
 import { validEmail, validPhone } from '../middlewares/valid'
 import { IDecodedToken, IGgPayload } from '../config/interfaces'
 
@@ -56,7 +56,8 @@ const authCtrl = {
     login: async (req: Request, res: Response) => {
         try {
             const { account, password } = req.body
-            const user = await userModel.findOne({account})
+            
+            const user = await userModel.findOne({account}).populate('persos').populate('perso')
 
             if(!user) return res.status(400).json({msg: "Ce compte n'existe pas."})
 
@@ -124,7 +125,7 @@ const authCtrl = {
 
             if (!decoded) return res.status(500).json({ msg: "Merci de vous authentifier !" })
 
-            const user = await userModel.findById(decoded.id).select('-password')
+            const user = await userModel.findById(decoded.id).populate('persos').populate('perso').select('-password')
 
             if (!user) return res.status(500).json({ msg: "Ce compte n'existe pas !" })
 
@@ -153,7 +154,7 @@ const authCtrl = {
             const password = email + process.env.GOOGLE_SALT
             const passwordHash = await bcrypt.hash(password, 12)
 
-            const user = await userModel.findOne({account: email})
+            const user = await userModel.findOne({account: email}).populate('persos').populate('perso')
     
             if (user) {
                 const access_token = generateAccessToken({ id: user._id })

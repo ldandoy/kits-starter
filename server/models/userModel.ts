@@ -1,4 +1,4 @@
-import mongoose from 'mongoose'
+import mongoose, { Schema } from 'mongoose'
 
 const userSchema = new mongoose.Schema({
     name: {
@@ -35,6 +35,14 @@ const userSchema = new mongoose.Schema({
     reset_token: {
         type: String,
         default: ''
+    },
+    persos:[{ 
+        type: Schema.Types.ObjectId,
+        ref: 'Perso'
+    }],
+    perso: {
+        type: Schema.Types.ObjectId,
+        ref: 'Perso'
     }
 }, {
     timestamps: {
