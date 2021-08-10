@@ -3,7 +3,7 @@ import { IReqAuth } from '../config/interfaces'
 import Users from '../models/userModel'
 import bcrypt from 'bcrypt'
 import multer from 'multer'
-import path from 'path/posix'
+import path from 'path'
 
 const storage = multer.diskStorage({
     destination: "./public/upload/",

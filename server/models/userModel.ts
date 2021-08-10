@@ -35,14 +35,6 @@ const userSchema = new mongoose.Schema({
     reset_token: {
         type: String,
         default: ''
-    },
-    persos:[{ 
-        type: Schema.Types.ObjectId,
-        ref: 'Perso'
-    }],
-    perso: {
-        type: Schema.Types.ObjectId,
-        ref: 'Perso'
     }
 }, {
     timestamps: {

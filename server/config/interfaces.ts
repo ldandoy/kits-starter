@@ -1,4 +1,4 @@
-import {Document} from 'mongoose'
+import { Document } from 'mongoose'
 import { Request } from 'express'
 
 export interface IUser extends Document {
@@ -8,34 +8,7 @@ export interface IUser extends Document {
     avatar: string,
     role: string,
     type: string,
-    reset_token: string,
-    persos: [any],
-    perso: string
-}
-
-export interface IPerso extends Document {
-    name: string,
-    age: string,
-    race: string,
-    classe: string,
-    alignement: string,
-    taille: string,
-    poids: string,
-    niveau: string,
-    bonusMaitrise: string,
-    pdv: string,
-    force: string,
-    dexterite: string,
-    constitution: string,
-    intelligence: string,
-    sagesse: string,
-    charisme: string,
-    gold: string,
-    ca: string,
-    competences: [string],
-    equipements: [string],
-    armes: [Armes],
-    user: any
+    reset_token: string
 }
 
 export interface INewUser {
@@ -60,9 +33,4 @@ export interface IGgPayload {
 
 export interface IReqAuth extends Request {
     user?: IUser
-}
-
-export interface Armes {
-    name: string,
-    degat: string
 }

@@ -57,7 +57,7 @@ const authCtrl = {
         try {
             const { account, password } = req.body
             
-            const user = await userModel.findOne({account}).populate('persos').populate('perso')
+            const user = await userModel.findOne({account})
 
             if(!user) return res.status(400).json({msg: "Ce compte n'existe pas."})
 
@@ -125,7 +125,7 @@ const authCtrl = {
 
             if (!decoded) return res.status(500).json({ msg: "Merci de vous authentifier !" })
 
-            const user = await userModel.findById(decoded.id).populate('persos').populate('perso').select('-password')
+            const user = await userModel.findById(decoded.id).select('-password')
 
             if (!user) return res.status(500).json({ msg: "Ce compte n'existe pas !" })
 
@@ -154,7 +154,7 @@ const authCtrl = {
             const password = email + process.env.GOOGLE_SALT
             const passwordHash = await bcrypt.hash(password, 12)
 
-            const user = await userModel.findOne({account: email}).populate('persos').populate('perso')
+            const user = await userModel.findOne({account: email})
     
             if (user) {
                 const access_token = generateAccessToken({ id: user._id })
