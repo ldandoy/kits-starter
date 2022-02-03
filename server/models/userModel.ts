@@ -1,5 +1,38 @@
 import mongoose, { Schema } from 'mongoose'
 
+/**
+ * @swagger
+ * components:
+ *   schemas:
+ *     User:
+ *       type: object
+ *       properties:
+ *         id:
+ *           type: objectId
+ *           description: The user ID.
+ *           example: sqdsqd
+ *         name:
+ *           type: string
+ *           description: The user's name.
+ *           example: jvhsdcb
+ *         account:
+ *           type: string
+ *           description: The user's email.
+ *           example: ldandoy@gmail.com
+ *         password:
+ *           description: The user's password.
+ *           type: string
+ *         avatar:
+ *           type: string
+ *         role:
+ *           type: string
+ *           description: The user's role (admin or user).
+ *         type:
+ *           type: string
+ *           description: (normal or fast).
+ *         reset_token:
+ *           type: string
+ */
 const userSchema = new mongoose.Schema({
     name: {
         type: String,
@@ -9,7 +42,7 @@ const userSchema = new mongoose.Schema({
     },
     account: {
         type: String,
-        required: [true, 'Entrez votre email ou votre numéro de téléphone'],
+        required: [true, 'Entrez votre email'],
         trim: true,
         unique: true
     },

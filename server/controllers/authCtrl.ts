@@ -7,8 +7,7 @@ import md5 from 'md5'
 
 import { generateActiveToken, generateAccessToken, generateRefreshToken } from '../utils/generateToken'
 import sendMail from '../utils/sendMail'
-import sendSms from '../utils/sendSMS'
-import { validEmail, validPhone } from '../middlewares/valid'
+import { validEmail } from '../middlewares/valid'
 import { IDecodedToken, IGgPayload } from '../config/interfaces'
 
 const client = new OAuth2Client(`${process.env.GOOGLE_CLIENT_ID}`)
@@ -20,14 +19,14 @@ const authCtrl = {
             const { name, account, password } = req.body
             const user = userModel.findOne({account})
             
-            if(!user) return res.status(400).json({msg: 'Email or Phone number already exists.'})
+            if(!user) return res.status(400).json({msg: 'Email already exists.'})
 
             const passwordhash = await bcrypt.hash(password, 12)
 
             const newUser = { name, account, password: passwordhash }
 
             const active_token = generateActiveToken({newUser})
-
+            console.log('active_token :', active_token)
             const url = `${process.env.BASE_URL}/active/${active_token}`
 
             if (validEmail(account)) {
@@ -39,17 +38,8 @@ const authCtrl = {
                 return res.json({ 
                     msg: 'Bravo ! Vous avez reçu un email pour activer votre compte.',
                 })
-            } else if (validPhone(account)) {
-                if (process.env.SEND) {
-                    sendSms(account, url, "Vous avez reçu un SMS pour activer votre compte")
-                }
-                
-                return res.json({ 
-                    msg: "Bravo ! Vous avez reçu un SMS pour activer votre compte.",
-                    active_url: url
-                })
-              }
-        } catch (error) {
+            }
+        } catch (error: any) {
             return res.status(500).json({msg: error.message})
         }
     },
@@ -79,7 +69,7 @@ const authCtrl = {
                 access_token,
                 user: {...user._doc, password: ''}
             })
-        } catch (error) {
+        } catch (error: any) {
             return res.status(500).json({ msg: error.message })
         }
     },
@@ -103,7 +93,7 @@ const authCtrl = {
 
             res.json({msg: "Account has been activated!"})
     
-        } catch (err) {
+        } catch (err: any) {
             return res.status(500).json({msg: err.message})
         }
     },
@@ -111,7 +101,7 @@ const authCtrl = {
         try {
             res.clearCookie('refreshtoken', { path: `/api/refresh_token` })
             return res.json({msg: "Logout !"})
-        } catch (error) {
+        } catch (error: any) {
             return res.status(500).json({ msg: error.message })
         }
     },
@@ -135,7 +125,7 @@ const authCtrl = {
                 access_token,
                 user
             })
-        } catch (error) {
+        } catch (error: any) {
             return res.status(500).json({ msg: error.message })
         }
     },

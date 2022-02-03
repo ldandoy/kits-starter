@@ -2,7 +2,7 @@ import { Request, Response, NextFunction } from 'express'
 
 export const validRegister = async (req: Request, res: Response, next: NextFunction) => {
     const { name, account, password } = req.body
-
+    console.log('req.body : ', req.body)
     const errors = []
 
     if (!name) {

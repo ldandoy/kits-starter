@@ -22,13 +22,37 @@ const userCtrl = {
         if(!req.user) return res.status(400).json({msg: "Invalid Authentication."})
 
         try {
-            const { avatar, name } = req.body
+            let { avatar, name, type, password, cf_password } = req.body
+            
+            if (typeof req.file === 'object') {
+                avatar = process.env.BACK_HOST+":"+process.env.PORT+"/upload/"+req.file?.filename
+            }
 
-            await Users.findOneAndUpdate({_id: req.user._id}, {
-                avatar, name
-            })
+            if (type === 'Google') {
+                const user = await Users.findOneAndUpdate({_id: req.user._id, type: "Google"}, {$set:{
+                    avatar,
+                    name
+                }}, {new: true}).select('-password')
+                res.json({msg:"User bien mise à jour !", user})
+            } else if (type === 'normal') {
+                if (password === '') {
+                    return res.status(500).json({msg: "Le mot de passe est vide !"})    
+                }
 
-            res.json({ msg: "Update Success!" })
+                if (password !== cf_password) {
+                    return res.status(500).json({msg: "Error lors de la confirmation du mot de passe !"})    
+                }
+                
+                const passwordHash = await bcrypt.hash(password, 12)
+                const user = await Users.findOneAndUpdate({_id: req.user._id, type: "normal"}, {$set:{
+                    avatar,
+                    name,
+                    password: passwordHash
+                }}, {new: true}).select('-password')
+                res.json({msg:"User bien mise à jour !", user})
+            } else {
+                return res.status(500).json({msg: "Error lors de la mise à jour de votre compte !"})    
+            }
         } catch (err: any) {
             return res.status(500).json({msg: err.message})
         }
