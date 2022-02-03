@@ -1,0 +1,102 @@
+import { createSlice } from '@reduxjs/toolkit'
+
+const authSlice = createSlice({
+    name: 'auth',
+    initialState: {
+        isLoading: false,
+        isAuth: false,
+        user: {},
+        token: '',
+        error: ''
+    },
+    reducers: {
+        setAuthPending: (state) => {
+            state.isLoading = true
+        },
+        setAuthSuccess: (state, {payload}) => {
+            state.isLoading = false
+            state.isAuth    = true
+            if (payload.access_token) {
+                state.token     = payload.access_token
+            }
+
+            if (payload.user) {
+                state.user      = payload.user
+            }
+        },
+        setAuthFaild: (state) => {
+            state.isLoading = false
+        },
+        loginPending: (state) => {
+            state.isLoading = true
+        },
+        loginSuccess: (state, {payload}) => {
+            state.isLoading = false
+            state.isAuth    = true
+            state.error     = ''
+            state.token     = payload.access_token
+            state.user      = payload.user
+        },
+        loginFail: (state, {payload}) => {
+            state.isLoading = false
+            state.error = payload
+        },
+        registerPending: (state) => {
+            state.isLoading = true
+        },
+        registerSuccess: (state, {payload}) => {
+            state.isLoading = false
+            state.isAuth    = true
+            state.error     = ''
+            state.token     = payload.access_token
+            state.user      = payload.user
+        },
+        registerFail: (state, {payload}) => {
+            state.isLoading = false
+            state.error = payload
+        },
+        setUserPending: (state) => {
+            state.isLoading = true
+        },
+        setUserSuccess: (state, {payload}) => {
+            state.isLoading = false
+            state.isAuth    = true
+            state.error     = ''
+            if (payload.access_token) {
+                state.token     = payload.access_token
+            }
+
+            if (payload.user) {
+                state.user      = payload.user
+            }
+        },
+        setUserFail: (state, {payload}) => {
+            state.isLoading = false
+            state.error = payload
+        },
+        logout: (state) => {
+            state.isLoading = false
+            state.isAuth = false
+            state.user = {}
+            state.token = ''
+            state.error = ''
+        }
+    }
+})
+
+const {reducer, actions} = authSlice
+
+export const { 
+    loginPending,
+    loginSuccess,
+    loginFail,
+    registerPending,
+    registerSuccess,
+    registerFail,
+    setUserPending,
+    setUserSuccess,
+    setUserFail,
+    logout
+} = actions
+
+export default reducer
