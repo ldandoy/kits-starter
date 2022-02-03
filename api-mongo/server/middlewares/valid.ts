@@ -17,7 +17,7 @@ export const validRegister = async (req: Request, res: Response, next: NextFunct
         errors.push('Votre email ou votre numéro de téléphone est mal formaté')
     }
 
-    if (password.length < 6) {
+    if (!password || password.length < 6) {
         errors.push("Votre mot de passe doit avoir au moins 6 caractères")
     }
 

@@ -4,23 +4,30 @@ import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
 import { OAuth2Client } from 'google-auth-library'
 import md5 from 'md5'
+import { Post, Get, Route, Body } from "tsoa"
 
 import { generateActiveToken, generateAccessToken, generateRefreshToken } from '../utils/generateToken'
 import sendMail from '../utils/sendMail'
-import sendSms from '../utils/sendSMS'
-import { validEmail, validPhone } from '../middlewares/valid'
-import { IDecodedToken, IGgPayload } from '../config/interfaces'
+import { validEmail } from '../middlewares/valid'
+import { IDecodedToken, IGgPayload, RegisterResponse, registerParams } from '../config/interfaces'
 
 const client = new OAuth2Client(`${process.env.GOOGLE_CLIENT_ID}`)
-const CLIENT_URL = `${process.env.BASE_URL}`
 
-const authCtrl = {
-    register: async (req: Request, res: Response) => {
+@Route("/auth")
+export class authCtrl {
+
+    @Post("/register")
+    public async register (@Body() body :registerParams ): Promise<RegisterResponse> {
         try {
-            const { name, account, password } = req.body
+            const { name, account, password } = body
             const user = userModel.findOne({account})
             
-            if(!user) return res.status(400).json({msg: 'Email or Phone number already exists.'})
+            if(!user) {
+                return {
+                    msg: 'Email or Phone number already exists.',
+                    status: 500
+                }
+            }
 
             const passwordhash = await bcrypt.hash(password, 12)
 
@@ -36,23 +43,23 @@ const authCtrl = {
                     sendMail(account, "Active your account", html)
                 }
             
-                return res.json({ 
+                return { 
                     msg: 'Bravo ! Vous avez reçu un email pour activer votre compte.',
-                })
-            } else if (validPhone(account)) {
-                if (process.env.SEND) {
-                    sendSms(account, url, "Vous avez reçu un SMS pour activer votre compte")
+                    status: 200
                 }
-                
-                return res.json({ 
-                    msg: "Bravo ! Vous avez reçu un SMS pour activer votre compte.",
-                    active_url: url
-                })
-              }
-        } catch (error) {
-            return res.status(500).json({msg: error.message})
+            } else {
+                return {
+                    msg: "Vos informations ne nous permettent pas de créer le compte.",
+                    status: 500
+                }
+            }
+        } catch (error:any) {
+            return {
+                msg: error.message,
+                status: 500
+            }
         }
-    },
+    }/*,
     login: async (req: Request, res: Response) => {
         try {
             const { account, password } = req.body
@@ -79,7 +86,7 @@ const authCtrl = {
                 access_token,
                 user: {...user._doc, password: ''}
             })
-        } catch (error) {
+        } catch (error:any) {
             return res.status(500).json({ msg: error.message })
         }
     },
@@ -103,7 +110,7 @@ const authCtrl = {
 
             res.json({msg: "Account has been activated!"})
     
-        } catch (err) {
+        } catch (err:any) {
             return res.status(500).json({msg: err.message})
         }
     },
@@ -111,7 +118,7 @@ const authCtrl = {
         try {
             res.clearCookie('refreshtoken', { path: `/api/refresh_token` })
             return res.json({msg: "Logout !"})
-        } catch (error) {
+        } catch (error:any) {
             return res.status(500).json({ msg: error.message })
         }
     },
@@ -135,7 +142,7 @@ const authCtrl = {
                 access_token,
                 user
             })
-        } catch (error) {
+        } catch (error:any) {
             return res.status(500).json({ msg: error.message })
         }
     },
@@ -173,11 +180,11 @@ const authCtrl = {
                 })
             } else {
                 const user = {
-                name, 
-                account: email, 
-                password: passwordHash, 
-                avatar: picture,
-                type: 'Google'
+                    name,
+                    account: email, 
+                    password: passwordHash, 
+                    avatar: picture,
+                    type: 'Google'
                 }
                 
                 const newUser = new userModel(user)
@@ -195,7 +202,7 @@ const authCtrl = {
                 return res.json({
                     msg: 'Login Success!',
                     access_token,
-                    user: { ...newUser._doc, password: '' }
+                    user: { ...newUser, password: '' }
                 })
             }
           
@@ -261,7 +268,5 @@ const authCtrl = {
         } catch (err: any) {
             return res.status(500).json({msg: err.message})
         }
-    }
+    }*/
 }
-
-export default authCtrl

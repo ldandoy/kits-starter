@@ -5,6 +5,7 @@ import express from 'express'
 import cors from 'cors'
 import cookieParser from 'cookie-parser'
 import morgan from 'morgan'
+import swaggerUi from "swagger-ui-express"
 
 import routes from './routes/index'
 
@@ -15,10 +16,22 @@ app.use(express.urlencoded({ extended: false }))
 app.use(cors())
 app.use(morgan('dev'))
 app.use(cookieParser())
-app.use(express.static('public'));
+app.use(express.static('public'))
+
+import { RegisterRoutes } from "./routes/routes";
 
 // Database
 import './config/database'
+
+app.use(
+    "/docs",
+    swaggerUi.serve,
+    swaggerUi.setup(undefined, {
+        swaggerOptions: {
+        url: "/swagger.json",
+        },
+    })
+)
 
 // Routes
 app.use('/api', routes.authRouter)
