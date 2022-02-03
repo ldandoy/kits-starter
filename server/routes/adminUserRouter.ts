@@ -1,7 +1,6 @@
 import express from 'express'
 import multer from 'multer'
 import path from 'path'
-import { Get, Route } from "tsoa";
 
 
 import authAdmin from '../middlewares/auth'
@@ -20,7 +19,6 @@ const upload = multer({
 })
 
 const Router = express.Router()
-
 
 Router.get('/users', authAdmin, adminUserCtrl.getUsers)
 
