@@ -105,3 +105,6 @@ dist
 
 # Image Uploaded
 public/upload/
+
+package-lock.json
+yarn.lock
