@@ -18,7 +18,7 @@ ax.interceptors.request.use(async req => {
         
         if (!isExpired) return req
 
-        response = await axios.get(`${process.env.REACT_APP_URL_API}/api/refresh_token`,{
+        response = await axios.get(`${process.env.REACT_APP_URL_API}/api/auth/refresh_token`,{
             withCredentials: true
         })
     

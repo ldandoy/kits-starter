@@ -1,8 +1,9 @@
 {
-  "name": "donjonanddragon-front",
+  "name": "node-server-ts-starter-front",
   "version": "0.1.0",
   "private": true,
   "main": "public/electron.js",
+  "proxy": "http://localhost:5000",
   "dependencies": {
     "@reduxjs/toolkit": "^1.7.1",
     "@testing-library/jest-dom": "^5.11.4",

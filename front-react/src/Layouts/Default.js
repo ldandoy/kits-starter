@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react'
 import { useSelector } from "react-redux"
 
 import Navbar from '../components/layouts/Navbar'
-import ReportBug from '../components/layouts/ReportBug'
 
 const Default = ({ children, isPrivate = false }) => {
     const { auth } = useSelector((state) => state)
@@ -26,7 +25,7 @@ const Default = ({ children, isPrivate = false }) => {
         <main className="mt-70 front">
             { !isLoading && <>
                 { children }
-                { auth && <ReportBug /> }
+                { auth }
             </> }
 
             { isLoading && <>

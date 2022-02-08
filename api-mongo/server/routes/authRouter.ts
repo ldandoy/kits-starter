@@ -18,7 +18,7 @@ Router.post('/login', async (req :Request, res :Response) => {
         path: `/api/refresh_token`,
         maxAge: 30*24*60*60*1000
     })
-    return res.status(response.status).json(response.msg)
+    return res.status(response.status).json({user : response.user, acces_token: response.access_token})
 })
 
 Router.post('/active', async (req :Request, res :Response) => {
@@ -36,6 +36,7 @@ Router.get('/refresh_token',  async (req :Request, res :Response) => {
     const response = await ctrl.refreshToken(req)
     return res.status(response.status).json(response.msg)
 })
+
 Router.post('/google_login', async (req :Request, res :Response) => {
     const response = await ctrl.googleLogin(req.body)
     res.cookie('refreshtoken', response.refresh_token, {

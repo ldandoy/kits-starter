@@ -26,7 +26,7 @@ const LoginPass =  () => {
         dispatch(loginPending())
 
         try {
-            const res = await postAPI("login", form)
+            const res = await postAPI("auth/login", form)
             dispatch(loginSuccess(res.data))
             history.push('/')
         } catch (error) {

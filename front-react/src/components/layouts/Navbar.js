@@ -16,14 +16,14 @@ const Navbar =  () => {
                     <a className="navbar-link" href="/">
                         <img src="/mjv-blanc-transparent.png" width={40} alt="logo" />
                     </a>
-                    <a id="home" href="/" className="navbar-link">MJ Virtuel</a>
+                    <a id="home" href="/" className="navbar-link">Starter</a>
                 </div>
                 <i className="navbar-menu-icon">&#9776;</i>
             </div>
 
             <div className="navbar-content-menu">
                 <ul className="navbar-menu-left">
-                    <li className="navbar-item"><Link to="/scenarii" className="navbar-link">Scénarii</Link></li>
+                    <li className="navbar-item"></li>
                 </ul>
                 <ul className="navbar-menu-right">
                     {
@@ -41,10 +41,8 @@ const Navbar =  () => {
                                         <Link to="/my-account" className={ `navbar-link ${isActive('/my-account')}` }>Mon compte</Link>
                                     </li>
                                     <li className="navbar-item">
-                                        <Link to="/account/scenarii" className={ `navbar-link ${isActive('/account/scenarii')}` }>Vos scénarii</Link>
                                     </li>
                                     <li className="navbar-item">
-                                        <Link to="/my-bugs" className={ `navbar-link ${isActive('/my-bugs')}` }>Mes bugs</Link>
                                     </li>
 
                                     {user.role === "admin" &&

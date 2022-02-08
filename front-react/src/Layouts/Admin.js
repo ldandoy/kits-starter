@@ -28,7 +28,6 @@ const Admin = ({ children }) => {
                                 <Link className='navbar-link' to="/admin/users">Users</Link>
                             </li>
                             <li className='navbar-item'>
-                                <Link className='navbar-link' to="/admin/bugs">Bugs</Link>
                             </li>
                         </ul>
                     </nav>
