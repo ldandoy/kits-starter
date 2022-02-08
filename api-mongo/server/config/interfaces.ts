@@ -34,14 +34,3 @@ export interface IGgPayload {
 export interface IReqAuth extends Request {
     user?: IUser
 }
-
-export interface RegisterResponse {
-    msg: string
-    status: number
-}
-
-export interface registerParams {
-    name: string,
-    account: string,
-    password: string
-}

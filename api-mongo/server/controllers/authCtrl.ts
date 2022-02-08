@@ -1,23 +1,34 @@
-import { Request, Response } from 'express'
+import express from 'express'
 import userModel from '../models/userModel'
 import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
 import { OAuth2Client } from 'google-auth-library'
 import md5 from 'md5'
-import { Post, Get, Route, Body } from "tsoa"
+import { Post, Get, Route, Body, Request } from "tsoa"
 
 import { generateActiveToken, generateAccessToken, generateRefreshToken } from '../utils/generateToken'
 import sendMail from '../utils/sendMail'
 import { validEmail } from '../middlewares/valid'
-import { IDecodedToken, IGgPayload, RegisterResponse, registerParams } from '../config/interfaces'
+
+import { IDecodedToken, IGgPayload } from '../config/interfaces'
+import { registerResponse, registerParams } from '../config/interfaces/auth/register'
+import { loginResponse, loginParams } from '../config/interfaces/auth/login'
+import { activeResponse, activeParams } from '../config/interfaces/auth/active'
+import { refreshTokenResponse } from '../config/interfaces/auth/refreshToken'
+import { googleLoginResponse, googleLoginParams } from '../config/interfaces/auth/googleLogin'
+import { forgotPasswordResponse, forgotPasswordParams } from '../config/interfaces/auth/forgotPassword'
+import { resetPasswordResponse, resetPasswordParams } from '../config/interfaces/auth/resetPassword'
+
+
+
 
 const client = new OAuth2Client(`${process.env.GOOGLE_CLIENT_ID}`)
 
-@Route("/auth")
+@Route("/api/auth")
 export class authCtrl {
 
     @Post("/register")
-    public async register (@Body() body :registerParams ): Promise<RegisterResponse> {
+    public async register (@Body() body :registerParams ): Promise<registerResponse> {
         try {
             const { name, account, password } = body
             const user = userModel.findOne({account})
@@ -59,96 +70,138 @@ export class authCtrl {
                 status: 500
             }
         }
-    }/*,
-    login: async (req: Request, res: Response) => {
+    }
+    @Post("/login")
+    public async login (@Body() body: loginParams ): Promise<loginResponse> {
         try {
-            const { account, password } = req.body
-            
+            const { account, password } = body
             const user = await userModel.findOne({account})
 
-            if(!user) return res.status(400).json({msg: "Ce compte n'existe pas."})
+            if(!user) {
+                return {
+                    msg: "Ce compte n'existe pas.",
+                    status: 400
+                }
+            }
 
             const isMatch = await bcrypt.compare(password, user.password)
 
-            if (!isMatch) return res.status(400).json({msg: "Mot de passe incorrecte."})
+            if (!isMatch) {
+                return {
+                    msg: "Mot de passe incorrecte.",
+                    status: 400
+                }
+            }
 
             const access_token = generateAccessToken({ id: user._id })
             const refresh_token = generateRefreshToken({ id: user._id })
-
-            res.cookie('refreshtoken', refresh_token, {
-                httpOnly: true,
-                path: `/api/refresh_token`,
-                maxAge: 30*24*60*60*1000
-            })
-
-            res.json({
+            
+            return {
                 msg: "Login Success!",
+                status: 200,
                 access_token,
+                refresh_token,
                 user: {...user._doc, password: ''}
-            })
-        } catch (error:any) {
-            return res.status(500).json({ msg: error.message })
-        }
-    },
-    activeAccount: async(req: Request, res: Response) => {
-        try {
-            const { active_token } = req.body
-    
-            const decoded = <IDecodedToken>jwt.verify(active_token, `${process.env.ACTIVE_TOKEN_SECRET}`)
+            }
 
+        } catch (error:any) {
+            return {
+                msg: error.message,
+                status: 500
+            }
+        }
+    }
+    @Post("/active")
+    public async activeAccount (@Body() body :activeParams ): Promise<activeResponse> {
+        try {
+            const { active_token } = body
+            const decoded = <IDecodedToken>jwt.verify(active_token, `${process.env.ACTIVE_TOKEN_SECRET}`)
             const { newUser } = decoded 
     
-            if(!newUser) return res.status(400).json({msg: "Invalid authentication."})
+            if(!newUser) {
+                return {
+                    msg: "Invalid authentication.",
+                    status: 400
+                }
+            }
             
             const user = await userModel.findOne({ account: newUser.account })
 
-            if (user) return res.status(400).json({msg: "Ce user existe déjà."})
+            if (user) {
+                return {
+                    msg: "Ce user existe déjà.",
+                    status: 400
+                }
+            }
 
             const new_user = new userModel(newUser)
 
             await new_user.save()
 
-            res.json({msg: "Account has been activated!"})
+            return {
+                msg: "Account has been activated!",
+                status: 200
+            }
     
         } catch (err:any) {
-            return res.status(500).json({msg: err.message})
+            return {
+                msg: err.message,
+                status: 500
+            }
         }
-    },
-    logout: async (req: Request, res: Response) => {
-        try {
-            res.clearCookie('refreshtoken', { path: `/api/refresh_token` })
-            return res.json({msg: "Logout !"})
-        } catch (error:any) {
-            return res.status(500).json({ msg: error.message })
-        }
-    },
-    refreshToken: async (req: Request, res: Response) => {
+    }
+    @Get("/logout")
+    public logout() : void {
+
+    }
+    @Get("/refresh_token")
+    public async refreshToken (@Request() req: express.Request): Promise<refreshTokenResponse> {
         try {
             const rf_token = req.cookies.refreshtoken
-
-            if (!rf_token) return res.status(500).json({ msg: "Merci de vous authentifier !" })
+            if (!rf_token) {
+                return{
+                    msg: "Merci de vous authentifier !",
+                    status: 500
+                }
+            }
 
             const decoded = <IDecodedToken>jwt.verify(rf_token, `${process.env.REFRESH_TOKEN_SECRET}`)
 
-            if (!decoded) return res.status(500).json({ msg: "Merci de vous authentifier !" })
+            if (!decoded) {
+                return {
+                    msg: "Merci de vous authentifier",
+                    status: 500
+                }
+            }
 
             const user = await userModel.findById(decoded.id).select('-password')
 
-            if (!user) return res.status(500).json({ msg: "Ce compte n'existe pas !" })
+            if (!user) {
+                return {
+                    msg: "Ce compte n'existe pas !",
+                    status: 500
+                }
+            }
 
             const access_token = generateAccessToken({id: user._id})
 
-            res.json({
+            return {
+                status: 200,
                 access_token,
                 user
-            })
+            }
+
         } catch (error:any) {
-            return res.status(500).json({ msg: error.message })
+            return {
+                msg: error.message,
+                status: 500
+            }
         }
-    },
-    googleLogin: async(req: Request, res: Response) => {
+    }
+    @Post("/google_login")
+    public async googleLogin (@Body() body : googleLoginParams ): Promise<googleLoginResponse> {
         try {
-            const { id_token } = req.body
+            const { id_token } = body
             const verify = await client.verifyIdToken({ 
                 idToken: id_token,
                 audience: `${process.env.GOOGLE_CLIENT_ID}`
@@ -156,28 +209,29 @@ export class authCtrl {
 
             const { email, email_verified, name, picture } = <IGgPayload>verify.getPayload()
 
-            if (!email_verified) return res.status(500).json({msg: "Email verification failed."})
+            if (!email_verified) {
+                return {
+                    msg: "Email verification failed.",
+                    status: 500
+                }
+            }
 
             const password = email + process.env.GOOGLE_SALT
             const passwordHash = await bcrypt.hash(password, 12)
-
             const user = await userModel.findOne({account: email})
     
             if (user) {
                 const access_token = generateAccessToken({ id: user._id })
-                const refresh_token = generateRefreshToken({ id: user._id })
+                const refresh_token = generateRefreshToken({id: user._id})
 
-                res.cookie('refreshtoken', refresh_token, {
-                    httpOnly: true,
-                    path: `/api/refresh_token`,
-                    maxAge: 30*24*60*60*1000
-                })
-
-                return res.json({
+                return {
                     msg: "Login Success!",
+                    status: 200,
                     access_token,
+                    refresh_token,
                     user: {...user._doc, password: ''}
-                })
+                }
+
             } else {
                 const user = {
                     name,
@@ -193,26 +247,26 @@ export class authCtrl {
                 const access_token = generateAccessToken({id: newUser._id})
                 const refresh_token = generateRefreshToken({id: newUser._id})
 
-                res.cookie('refreshtoken', refresh_token, {
-                    httpOnly: true,
-                    path: `/api/refresh_token`,
-                    maxAge: 30*24*60*60*1000 // 30days
-                })
-
-                return res.json({
-                    msg: 'Login Success!',
+                return {
+                    msg: "Login Success!",
+                    status: 200,
                     access_token,
-                    user: { ...newUser, password: '' }
-                })
+                    refresh_token,
+                    user: {...newUser, password: ''}
+                }
             }
           
         } catch (err: any) {
-          return res.status(500).json({msg: err.message})
+          return {
+              msg: err.message,
+              status: 500
+          }
         }
-    },
-    forgot_password: async(req: Request, res: Response) => {
+    }
+    @Post("/forgot_password")
+    public async forgot_password (@Body() body : forgotPasswordParams ): Promise<forgotPasswordResponse> {
         try {
-            const { account } = req.body
+            const { account } = body
 
             const user = await userModel.findOne({account: account})
     
@@ -227,24 +281,35 @@ export class authCtrl {
                     const url = `${process.env.BASE_URL}/reset_password/${reset_token}`
                     const html = '<h1>Bonjour</h1><p>Pour mettre à jour votre mot de passe <a href="' + url + '">cliquer ici</a></p><p>Vous avez 24h</p>'
                     sendMail(account, "Reset password", html)
-                    return res.json({
-                        msg: 'Un mail vous a été envoyé avec les instructions pour reinitialiser votre mot de passe'
-                    })
+                    return {
+                        msg: 'Un mail vous a été envoyé avec les instructions pour reinitialiser votre mot de passe',
+                        status: 200
+                    }
                 } else {
-                    return res.status(500).json({msg: "Cet utilisateur ne peut pas reinitialiser son mot de passe"})
+                    return {
+                        msg: "Cet utilisateur ne peut pas reinitialiser son mot de passe",
+                        status: 500
+                    }
                 }
             } else {
-                return res.status(500).json({msg: "Cet utilisateur n'existe pas"})
+                return {
+                    msg: "Cet utilisateur n'existe pas",
+                    status: 500
+                }
             }
         
         } catch (err: any) {
-            return res.status(500).json({msg: err.message})
+            return {
+                msg: err.message,
+                status: 500
+            }
         }
-    },
-    reset_password: async(req: Request, res: Response) => {
+    }
+    @Post("/reset_password/:reset_token")
+    public async reset_password (@Body() body : resetPasswordParams ): Promise<resetPasswordResponse> {
         try {
-            const { account, password, cf_password } = req.body.form
-            const { reset_token } = req.params
+            const { account, password, cf_password } = body
+            const { reset_token } = body
 
             const user = await userModel.findOne({
                 account,
@@ -259,14 +324,21 @@ export class authCtrl {
                     reset_token: ""
                 })
 
-                return res.json({
-                    msg: 'Votre mot de passe a bien été mis à jour. Vous pouvez à présent vous connecter avec celui-ci'
-                })
+                return {
+                    msg: 'Votre mot de passe a bien été mis à jour. Vous pouvez à présent vous connecter avec celui-ci',
+                    status: 200
+                }
             } else {
-                return res.status(500).json({msg: "Les infos envoyées n'ont pas permis de mettre à jour le mot de passe"})
+                return {
+                    msg: "Les infos envoyées n'ont pas permis de mettre à jour le mot de passe",
+                    status: 500
+                }
             }
         } catch (err: any) {
-            return res.status(500).json({msg: err.message})
+            return {
+                msg: err.message,
+                status: 500
+            }
         }
-    }*/
+    }
 }

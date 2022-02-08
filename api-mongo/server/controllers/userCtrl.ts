@@ -1,76 +1,73 @@
-import { Request, Response } from 'express'
-import { IReqAuth } from '../config/interfaces'
+import { Response } from 'express'
 import Users from '../models/userModel'
 import bcrypt from 'bcrypt'
-import multer from 'multer'
-import path from 'path'
+import { IReqAuth } from '../config/interfaces'
 
-const storage = multer.diskStorage({
-    destination: "./public/upload/",
-    filename: function(req, file, cb) {
-        cb(null, "IMAGE-"+Date.now()+path.extname(file.originalname))
-    }
-})
+import { Post, Route, Body, Patch, Request } from "tsoa"
+import { updateUserResponse, updateUserParams } from '../config/interfaces/user/updateUser'
+import { resetPasswordResponse, resetPasswordParams } from '../config/interfaces/user/resetPassword'
 
-const upload = multer({
-    storage,
-    limits: {fileSize:1000000}
-}).single('file')
 
-const userCtrl = {
-    updateUser: async (req: IReqAuth, res: Response) => {
-        if(!req.user) return res.status(400).json({msg: "Invalid Authentication."})
-
+@Route("/api/user")
+export class userCtrl {
+    @Patch("/me")
+    public async updateUser (@Body() body: updateUserParams, @Request() req: IReqAuth ): Promise<updateUserResponse> {
+        if(!req.user) {
+            return {
+                msg: "Invalid Authentication.",
+                status: 400
+            }
+        }
         try {
-            const { avatar, name } = req.body
+            const { avatar, name } = body
 
             await Users.findOneAndUpdate({_id: req.user._id}, {
                 avatar, name
             })
 
-            res.json({ msg: "Update Success!" })
+            return{
+                msg: "Update Success !",
+                status: 200
+            }
         } catch (err: any) {
-            return res.status(500).json({msg: err.message})
+            return {
+                msg: err.message,
+                status: 500
+            }
         }
-    },
-    resetPassword: async (req: IReqAuth, res: Response) => {
-        if(!req.user) return res.status(400).json({msg: "Invalid Authentication."})
+    }
+    @Patch("/reset_password")
+    public async resetPassword (@Body() body: resetPasswordParams, @Request() req: IReqAuth ): Promise<resetPasswordResponse> {
+        if(!req.user) {
+            return{
+                msg: "Invalid Authentication.",
+                status: 400
+            }
+        }
     
         if(req.user.type !== 'normal')
-            return res.status(400).json({
-                msg: `Quick login account with ${req.user.type} can't use this function.`
-            })
+            return {
+                msg: `Quick login account with ${req.user.type} can't use this function.`,
+                status: 400
+            }
 
         try {
-            const { password } = req.body
+            const { password } = body
             const passwordHash = await bcrypt.hash(password, 12)
 
             await Users.findOneAndUpdate({_id: req.user._id}, {
                 password: passwordHash
             })
 
-            res.json({ msg: "Reset Password Success!" })
+            return {
+                msg: "Reset password success !",
+                status: 200
+            }
         } catch (err: any) {
-            return res.status(500).json({msg: err.message})
-        }
-    },
-    updateProfileImage: async (req: IReqAuth, res: Response) => {
-        if(!req.user) return res.status(400).json({msg: "Invalid Authentication."})
-
-        try {
-            await upload(req, res, (err) => {
-                if (err) {
-                    console.log(err)
-                    return res.status(500).json({msg: err.code + ": " + err.message})
-                }
-
-                res.json({
-                    msg: "File uploaded!",
-                    url: process.env.BACK_HOST+":"+process.env.PORT+"/upload/"+req.file?.filename
-                })
-            })
-        } catch (err: any) {
-            return res.status(500).json({msg: err.message})
+            return {
+                msg: err.message,
+                status: 500
+            }
         }
     }
 }

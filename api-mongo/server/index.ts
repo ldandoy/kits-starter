@@ -18,8 +18,6 @@ app.use(morgan('dev'))
 app.use(cookieParser())
 app.use(express.static('public'))
 
-import { RegisterRoutes } from "./routes/routes";
-
 // Database
 import './config/database'
 
@@ -34,8 +32,9 @@ app.use(
 )
 
 // Routes
-app.use('/api', routes.authRouter)
-app.use('/api', routes.userRouter)
+app.use('/api/auth', routes.authRouter)
+app.use('/api/user', routes.userRouter)
+app.use('/api/admin/users', routes.adminUserRouter )
 
 // server listenning
 const PORT = process.env.PORT || 5000

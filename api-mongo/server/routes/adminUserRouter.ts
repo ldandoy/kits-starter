@@ -1,4 +1,4 @@
-import express from 'express'
+import express, { Request, Response } from 'express'
 import multer from 'multer'
 import path from 'path'
 
@@ -19,13 +19,25 @@ const upload = multer({
 })
 
 const Router = express.Router()
+const ctrl = new adminUserCtrl()
 
-Router.get('/users', authAdmin, adminUserCtrl.getUsers)
+Router.get('/', authAdmin, async ( res :Response) => {
+    const response = await ctrl.getUsers()
+    return res.status(response.status).json(response.msg)
+})
 
-Router.get('/users/:userId', authAdmin, adminUserCtrl.getUser)
+Router.get('/:userId', authAdmin, async ( req: Request, res :Response) => {
+    const response = await ctrl.getUser(req.body)
+    return res.status(response.status).json(response.msg)
+})
 
-Router.delete('/users/:userId', authAdmin, adminUserCtrl.deleteUser)
+Router.delete('/:userId', authAdmin, async ( req: Request, res :Response) => {
+    const response = await ctrl.deleteUser(req.body)
+    return res.status(response.status).json(response.msg)
+})
 
-Router.patch('/users/:userId/edit', authAdmin,  upload.single('avatar'), adminUserCtrl.updateUser)
-
+Router.patch('/:userId/edit', authAdmin, upload.single('avatar'),  async ( req: Request, res :Response) => {
+    const response = await ctrl.updateUser(req.body, req)
+    return res.status(response.status).json(response.msg)
+})
 export default Router
