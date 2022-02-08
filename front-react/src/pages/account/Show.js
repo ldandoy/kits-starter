@@ -6,10 +6,8 @@ const Show = () => {
     const { user, token, isAuth } = useSelector((state) => state.auth)
 
     return (<>
-        <img src="ban.png" className="img-fluid" alt="banniere du site" />
-        
         <section>
-            <div className="container mt-100">
+            <div className="container">
                 <h1 className="title">Mon compte</h1>
             </div>
         </section>

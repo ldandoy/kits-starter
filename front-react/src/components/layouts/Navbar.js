@@ -10,13 +10,13 @@ const Navbar =  () => {
     }
 
     return (
-        <nav className="navbar navbar-v navbar-bordered-b navbar-dark navbar-fixed-top bg-green">
+        <nav className="navbar navbar-v navbar-bordered-b navbar-light navbar-fixed-top">
             <div className="navbar-title">
                 <div>
                     <a className="navbar-link" href="/">
-                        <img src="/mjv-blanc-transparent.png" width={40} alt="logo" />
+                        <img src="/logo-nav.png" width={40} alt="logo-nav" />
                     </a>
-                    <a id="home" href="/" className="navbar-link">Starter</a>
+                    <a id="home" href="/" className="navbar-link">Titre Service</a>
                 </div>
                 <i className="navbar-menu-icon">&#9776;</i>
             </div>

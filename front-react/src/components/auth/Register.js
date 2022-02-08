@@ -27,7 +27,7 @@ const Register =  () => {
         dispatch(registerPending())
 
         try {
-            const res = await postAPI("register", form)
+            const res = await postAPI("auth/register", form)
             console.log(res.data)
             dispatch(registerSuccess(res.data))
             dispatch(setSuccess("Un mail vous a été envoyer "))

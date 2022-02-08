@@ -25,16 +25,14 @@ const Default = ({ children, isPrivate = false }) => {
         <main className="mt-70 front">
             { !isLoading && <>
                 { children }
-                { auth }
             </> }
 
             { isLoading && <>
                 Chargement...
             </>}
         </main>
-        <footer className="txt-center txt-size-11 ptb-50 bg-green txt-white-100">
-            <div>Tous droits réservés &copy; 2021 <a href='https://overconsulting.net' rel="noreferrer" className="txt-white-100" target="_blank">overconsulting.net</a></div>
-            <div>Image de <a href='https://www.aidedd.org/' rel="noreferrer" className="txt-white-100" target="_blank">aidedd</a></div>
+        <footer className="txt-center txt-size-11 ptb-50">
+            <div>Tous droits réservés &copy; 2021 <a href='https://overconsulting.net' rel="noreferrer" target="_blank">overconsulting.net</a></div>
         </footer>
     </>)
 }

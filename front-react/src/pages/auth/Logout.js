@@ -21,7 +21,7 @@ const Logout =  () => {
     })
 
     const logoutCall = useCallback(async () => {
-        await getAPI('logout')
+        await getAPI('auth/logout')
         dispath(logout())
         signOut()
         history.push("/login")

@@ -15,7 +15,7 @@ const Active = () => {
     const active = useCallback(async (slug) => {
         if (slug) {
             try {
-                const res = await postAPI('active', { active_token: slug })
+                const res = await postAPI('auth/active', { active_token: slug })
                 dispatch(setSuccess(res.data.msg))
                 setActivated(true)
             } catch (error) {

@@ -15,7 +15,7 @@ Router.post('/login', async (req :Request, res :Response) => {
     const response = await ctrl.login(req.body)
     res.cookie('refreshtoken', response.refresh_token, {
         httpOnly: true,
-        path: `/api/refresh_token`,
+        path: `/api/auth/refresh_token`,
         maxAge: 30*24*60*60*1000
     })
     return res.status(response.status).json({user : response.user, acces_token: response.access_token})
@@ -28,22 +28,33 @@ Router.post('/active', async (req :Request, res :Response) => {
 
 Router.get('/logout',  async (req :Request, res :Response) => {
     ctrl.logout()
-    res.clearCookie('refreshtoken', { path: `/api/refresh_token` })
+    res.clearCookie('refreshtoken', { path: `/api/auth/refresh_token` })
     return res.status(200).json({msg: "Logout"})
 })
 
 Router.get('/refresh_token',  async (req :Request, res :Response) => {
     const response = await ctrl.refreshToken(req)
-    return res.status(response.status).json(response.msg)
+    
+    if (response.status === 500) {
+        return res.status(response.status).json({
+            msg: response.msg
+        })
+    } else {
+        return res.status(response.status).json({
+            msg: response.msg,
+            access_token: response.access_token,
+            user: response.user
+        })
+    }
 })
 
 Router.post('/google_login', async (req :Request, res :Response) => {
     const response = await ctrl.googleLogin(req.body)
     res.cookie('refreshtoken', response.refresh_token, {
-                    httpOnly: true,
-                    path: `/api/refresh_token`,
-                    maxAge: 30*24*60*60*1000
-                })
+        httpOnly: true,
+        path: `/api/auth/refresh_token`,
+        maxAge: 30*24*60*60*1000
+    })
     return res.status(response.status).json(response.msg)
 })
 
