@@ -36,8 +36,16 @@ app.use('/api/auth', routes.authRouter)
 app.use('/api/user', routes.userRouter)
 app.use('/api/admin/users', routes.adminUserRouter )
 
+app.get('/', (req, res) => {
+    res.status(200).json({msg: "it works !"})
+})
+
+/**
+ * TODO: Ajouter Hander Error + 404 Not found
+ */
+
 // server listenning
 const PORT = process.env.PORT || 5000
 app.listen(PORT, () => {
-    console.log('Server is running on port', PORT)
+    console.log(`Server is running on port http://localhost:${PORT}`)
 })

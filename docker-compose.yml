@@ -44,7 +44,11 @@ services:
       - ./api-mongo:/app
     environment:
       - PORT=5000
+      - BASE_URL=http://localhost:3000
       - MONGODB_URL=mongodb://startkit:startkit123@mongodb
+      - ACCESS_TOKEN_SECRET=Secret12
+      - ACTIVE_TOKEN_SECRET=Secret12
+      - REFRESH_TOKEN_SECRET=Secret12
     ports:
       - 5000:5000
 #    restart: always

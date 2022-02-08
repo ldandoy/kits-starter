@@ -3,7 +3,7 @@ import { OAuth2Client } from 'google-auth-library';
 
 const sendEmail = async (to:string, subject: string, html: string) => {
     try {
-        const oAuth2Client = new OAuth2Client(
+        /*const oAuth2Client = new OAuth2Client(
             process.env.GOOGLE_CLIENT_ID, process.env.GOOGLE_CLIENT_KEY, process.env.GOOGLE_OAUTH_PLAYGROUND
         )
 
@@ -20,6 +20,12 @@ const sendEmail = async (to:string, subject: string, html: string) => {
                 clientSecret: process.env.GOOGLE_CLIENT_KEY,
                 refreshToken: process.env.GOOGLE_REFRESH_TOKEN
             }
+        })*/
+
+        const transport = nodemailer.createTransport({
+            host: "maildev",
+            port: 25,
+            secure: false
         })
 
         // verify connection configuration
