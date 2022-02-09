@@ -13,8 +13,9 @@ import routes from './routes/index'
 const app = express()
 app.use(express.json())
 app.use(express.urlencoded({ extended: false }))
+console.log(process.env.BASE_URL)
 app.use(cors({
-    origin: [`${process.env.BASE_URL}`],
+    origin: ['http://127.0.0.1:3000', `${process.env.BASE_URL}`],
     credentials: true,
 }))
 app.use(morgan('dev'))
