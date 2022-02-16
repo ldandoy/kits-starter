@@ -10,7 +10,7 @@ import { generateActiveToken, generateAccessToken, generateRefreshToken } from '
 import sendMail from '../utils/sendMail'
 import { validEmail } from '../middlewares/valid'
 
-import { IDecodedToken, IGgPayload } from '../config/interfaces'
+import { IDecodedToken, IGgPayload, IUser } from '../config/interfaces'
 import { registerResponse, registerParams } from '../config/interfaces/auth/register'
 import { loginResponse, loginParams } from '../config/interfaces/auth/login'
 import { activeResponse, activeParams } from '../config/interfaces/auth/active'
@@ -30,8 +30,8 @@ export class authCtrl {
     @Post("/register")
     public async register (@Body() body :registerParams ): Promise<registerResponse> {
         try {
-            const { name, account, password } = body
-            const user = userModel.findOne({account})
+            const { name, account , password } = body
+            const user = userModel.findByPk(account)
             
             if(!user) {
                 return {
@@ -75,7 +75,7 @@ export class authCtrl {
     public async login (@Body() body: loginParams ): Promise<loginResponse> {
         try {
             const { account, password } = body
-            const user = await userModel.findOne({account})
+            const user = await userModel.findByPk(account)
 
             if(!user) {
                 return {
@@ -93,15 +93,15 @@ export class authCtrl {
                 }
             }
 
-            const access_token = generateAccessToken({ id: user._id })
-            const refresh_token = generateRefreshToken({ id: user._id })
+            const access_token = generateAccessToken({ id: user.id })
+            const refresh_token = generateRefreshToken({ id: user.id })
 
             return {
                 msg: "Login Success!",
                 status: 200,
                 access_token,
                 refresh_token,
-                user: {...user._doc, password: ''}
+                user
             }
 
         } catch (error:any) {
@@ -125,7 +125,7 @@ export class authCtrl {
                 }
             }
             
-            const user = await userModel.findOne({ account: newUser.account })
+            const user = await userModel.findByPk(newUser.account)
 
             if (user) {
                 return {
@@ -134,9 +134,7 @@ export class authCtrl {
                 }
             }
 
-            const new_user = new userModel(newUser)
-
-            await new_user.save()
+            const new_user = userModel.create(newUser)
 
             return {
                 msg: "Account has been activated!",
@@ -174,7 +172,7 @@ export class authCtrl {
                 }
             }
 
-            const user = await userModel.findById(decoded.id).select('-password')
+            const user = await userModel.findByPk(decoded.id)
 
             if (!user) {
                 return {
@@ -183,7 +181,7 @@ export class authCtrl {
                 }
             }
 
-            const access_token = generateAccessToken({id: user._id})
+            const access_token = generateAccessToken({id: user.id})
 
             return {
                 status: 200,
@@ -218,18 +216,18 @@ export class authCtrl {
 
             const password = email + process.env.GOOGLE_SALT
             const passwordHash = await bcrypt.hash(password, 12)
-            const user = await userModel.findOne({account: email})
+            const user = await userModel.findByPk(email)
     
             if (user) {
-                const access_token = generateAccessToken({ id: user._id })
-                const refresh_token = generateRefreshToken({id: user._id})
+                const access_token = generateAccessToken({ id: user.id })
+                const refresh_token = generateRefreshToken({id: user.id})
 
                 return {
                     msg: "Login Success!",
                     status: 200,
                     access_token,
                     refresh_token,
-                    user: {...user._doc, password: ''}
+                    user
                 }
 
             } else {
@@ -238,21 +236,21 @@ export class authCtrl {
                     account: email, 
                     password: passwordHash, 
                     avatar: picture,
-                    type: 'Google'
+                    type: 'Google',
                 }
                 
-                const newUser = new userModel(user)
+                const newUser = userModel.build(user)
                 await newUser.save()
 
-                const access_token = generateAccessToken({id: newUser._id})
-                const refresh_token = generateRefreshToken({id: newUser._id})
+                const access_token = generateAccessToken({id: newUser.id})
+                const refresh_token = generateRefreshToken({id: newUser.id})
 
                 return {
                     msg: "Login Success!",
                     status: 200,
                     access_token,
                     refresh_token,
-                    user: {...newUser, password: ''}
+                    user
                 }
             }
           
@@ -268,15 +266,15 @@ export class authCtrl {
         try {
             const { account } = body
 
-            const user = await userModel.findOne({account: account})
+            const user = await userModel.findByPk(account)
     
             if (user) {
                 if (user.type === "normal") {
                     const reset_token = md5(account)
                     
-                    await userModel.findOneAndUpdate({_id: user._id}, {
+                    await userModel.update({
                         reset_token
-                    })
+                    }, {where : {_id: user.id}})
 
                     const url = `${process.env.BASE_URL}/reset_password/${reset_token}`
                     const html = '<h1>Bonjour</h1><p>Pour mettre à jour votre mot de passe <a href="' + url + '">cliquer ici</a></p><p>Vous avez 24h</p>'
@@ -311,18 +309,14 @@ export class authCtrl {
             const { account, password, cf_password } = body
             const { reset_token } = body
 
-            const user = await userModel.findOne({
-                account,
-                reset_token
-            })
-    
+            const user = await userModel.findOne({ where: { account , reset_token }})    
             if (user) {
                 const passwordhash = await bcrypt.hash(password, 12)
 
-                await userModel.findOneAndUpdate({_id: user._id}, {
+                await userModel.update({
                     password: passwordhash,
                     reset_token: ""
-                })
+                }, { where: {_id: user.id}})
 
                 return {
                     msg: 'Votre mot de passe a bien été mis à jour. Vous pouvez à présent vous connecter avec celui-ci',

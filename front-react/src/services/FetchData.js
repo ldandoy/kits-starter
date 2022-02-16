@@ -33,6 +33,7 @@ ax.interceptors.request.use(async req => {
 export const postAPI = async (url, post, token) => {
     const res = await ax.post(`/api/${url}`, post, {
         headers: { Authorization: token }
+
     })
 
     return res

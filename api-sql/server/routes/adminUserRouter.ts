@@ -21,7 +21,7 @@ const upload = multer({
 const Router = express.Router()
 const ctrl = new adminUserCtrl()
 
-Router.get('/', authAdmin, async ( req: Request, res :Response) => {
+Router.get('/'/*, authAdmin*/, async ( req: Request, res :Response) => {
     const response = await ctrl.getUsers()
     return res.status(response.status).json(response.msg)
 })

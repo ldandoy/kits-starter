@@ -87,7 +87,7 @@ const FormUpdate = ({user, token}) => {
                     <input type="text" disabled={true} name="account" value={form.account} className="form-input" onChange={onChangeInputHandler} placeholder="Email ou numéro de téléphone" />
                 </div>
                 <div className="form-group">
-                    <label htmlFor="" className="form-label">Name</label>
+                    <label htmlFor="" className="form-label" required="required">Name</label>
                     <input type="text" name="name" value={form.name} className="form-input" onChange={onChangeInputHandler} placeholder="Nom" />
                 </div>
                 <div className="form-group">
