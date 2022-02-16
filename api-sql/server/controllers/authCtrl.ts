@@ -10,7 +10,7 @@ import { generateActiveToken, generateAccessToken, generateRefreshToken } from '
 import sendMail from '../utils/sendMail'
 import { validEmail } from '../middlewares/valid'
 
-import { IDecodedToken, IGgPayload, IUser } from '../config/interfaces'
+import { IDecodedToken, IGgPayload, INewUser, IUser } from '../config/interfaces'
 import { registerResponse, registerParams } from '../config/interfaces/auth/register'
 import { loginResponse, loginParams } from '../config/interfaces/auth/login'
 import { activeResponse, activeParams } from '../config/interfaces/auth/active'
@@ -116,7 +116,7 @@ export class authCtrl {
         try {
             const { active_token } = body
             const decoded = <IDecodedToken>jwt.verify(active_token, `${process.env.ACTIVE_TOKEN_SECRET}`)
-            const { newUser } = decoded 
+            const { newUser } = decoded
     
             if(!newUser) {
                 return {
@@ -133,7 +133,7 @@ export class authCtrl {
                     status: 400
                 }
             }
-
+            
             const new_user = userModel.create(newUser)
 
             return {

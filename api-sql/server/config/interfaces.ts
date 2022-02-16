@@ -2,6 +2,8 @@ import { Request } from 'express'
 import { Model } from 'sequelize';
 
 export interface IUser extends Model {
+    [key: number]: string,
+    [key: symbol]: string,
     id?: number,
     name: string,
     account: string,
@@ -13,11 +15,12 @@ export interface IUser extends Model {
 }
 
 export interface INewUser {
+    [key: number]: string,
+    [key: symbol]: string,
     id?: number,
     name: string,
     account: string,
-    password: string,
-
+    password: string
 }
 
 export interface IDecodedToken {

@@ -1,4 +1,4 @@
-import { INewUser, IUser } from "../../interfaces";
+import { INewUser } from "../../interfaces";
 
 export interface googleLoginResponse {
     id?: number,
