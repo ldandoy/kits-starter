@@ -41,7 +41,8 @@ export const postAPI = async (url, post, token) => {
 
 export const getAPI = async (url, token) => {
     const res = await ax.get(`/api/${url}`, {
-        headers: { Authorization: token }
+        headers: { Authorization: token },
+        withCredentials: true,
     })
 
     return res
