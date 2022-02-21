@@ -1,16 +1,16 @@
 import express from 'express'
-import userModel from '../models/userModel'
 import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
 import { OAuth2Client } from 'google-auth-library'
 import md5 from 'md5'
 import { Post, Get, Route, Body, Request } from "tsoa"
 
+import userModel from '../models/userModel'
 import { generateActiveToken, generateAccessToken, generateRefreshToken } from '../utils/generateToken'
 import sendMail from '../utils/sendMail'
 import { validEmail } from '../middlewares/valid'
 
-import { IDecodedToken, IGgPayload, INewUser, IUser } from '../config/interfaces'
+import { IDecodedToken, IGgPayload, IUser } from '../config/interfaces'
 import { registerResponse, registerParams } from '../config/interfaces/auth/register'
 import { loginResponse, loginParams } from '../config/interfaces/auth/login'
 import { activeResponse, activeParams } from '../config/interfaces/auth/active'
@@ -31,7 +31,9 @@ export class authCtrl {
     public async register (@Body() body :registerParams ): Promise<registerResponse> {
         try {
             const { name, account , password } = body
-            const user = userModel.findByPk(account)
+            const user = userModel.findOne({
+                where: {account}
+            })
             
             if(!user) {
                 return {
@@ -42,9 +44,16 @@ export class authCtrl {
 
             const passwordhash = await bcrypt.hash(password, 12)
 
-            const newUser = { name, account, password: passwordhash }
+            const newUser: IUser = userModel.build({
+                name,
+                account,
+                password: passwordhash,
+                role: 'user',
+                type: 'normal',
+                reset_token: ''
+            })
 
-            const active_token = generateActiveToken({newUser})
+            const active_token = generateActiveToken({ newUser })
 
             const url = `${process.env.BASE_URL}/active/${active_token}`
 
@@ -75,7 +84,9 @@ export class authCtrl {
     public async login (@Body() body: loginParams ): Promise<loginResponse> {
         try {
             const { account, password } = body
-            const user = await userModel.findByPk(account)
+            const user = await userModel.findOne({
+                where: {account}
+            })
 
             if(!user) {
                 return {
@@ -112,7 +123,7 @@ export class authCtrl {
         }
     }
     @Post("/active")
-    public async activeAccount (@Body() body :activeParams ): Promise<activeResponse> {
+    public async activeAccount (@Body() body: activeParams ): Promise<activeResponse> {
         try {
             const { active_token } = body
             const decoded = <IDecodedToken>jwt.verify(active_token, `${process.env.ACTIVE_TOKEN_SECRET}`)
@@ -125,7 +136,11 @@ export class authCtrl {
                 }
             }
             
-            const user = await userModel.findByPk(newUser.account)
+            const user = await userModel.findOne({
+                where: {
+                    account: newUser.account
+                }
+            })
 
             if (user) {
                 return {
@@ -134,7 +149,7 @@ export class authCtrl {
                 }
             }
             
-            const new_user = userModel.create(newUser)
+            userModel.create({...newUser})
 
             return {
                 msg: "Account has been activated!",

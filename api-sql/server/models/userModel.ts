@@ -4,6 +4,11 @@ import { IUser } from '../config/interfaces';
 const sequelize = new Sequelize('sqlite::memory:');
 
 const userSchema = sequelize.define<IUser>('User', {
+    id: {
+        type: DataTypes.INTEGER,
+        primaryKey: true,
+        autoIncrement: true
+    },
     name: {
         type: DataTypes.STRING,
         allowNull: false,

@@ -10,6 +10,7 @@ export interface loginResponse {
     status: number,
     access_token?: string,
     refresh_token?: string,
+    user?: IUser
 }
 
  

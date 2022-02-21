@@ -7,6 +7,7 @@ export interface googleLoginResponse {
     access_token?: string,
     refresh_token?: string,
     name?: string,
+    user?: INewUser
 }
 
 export interface googleLoginParams {

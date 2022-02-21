@@ -18,7 +18,7 @@ Router.post('/login', async (req :Request, res :Response) => {
         path: `/api/auth/refresh_token`,
         maxAge: 30*24*60*60*1000
     })
-    return res.status(response.status).json({user : response.user, acces_token: response.access_token})
+    return res.status(response.status).json({user: response?.user, acces_token: response.access_token})
 })
 
 Router.post('/active', async (req :Request, res :Response) => {
