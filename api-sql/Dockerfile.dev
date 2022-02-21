@@ -12,7 +12,9 @@ COPY server ./server
 
 RUN ls -a
 
-RUN npm install
+RUN npm install && npm install --only=dev
+
+RUN npm install -g tsoa ts-node-dev
 
 EXPOSE 5000
 

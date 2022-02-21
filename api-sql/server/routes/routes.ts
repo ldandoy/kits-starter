@@ -85,7 +85,7 @@ const models: TsoaRoute.Models = {
         "dataType": "refObject",
         "properties": {
             "name": {"dataType":"string","required":true},
-            "account": {"dataType":"string"},
+            "account": {"dataType":"string","required":true},
             "password": {"dataType":"string","required":true},
         },
         "additionalProperties": false,
@@ -98,7 +98,6 @@ const models: TsoaRoute.Models = {
             "status": {"dataType":"double","required":true},
             "access_token": {"dataType":"string"},
             "refresh_token": {"dataType":"string"},
-            "user": {"dataType":"any"},
         },
         "additionalProperties": false,
     },
@@ -135,7 +134,6 @@ const models: TsoaRoute.Models = {
             "msg": {"dataType":"string"},
             "status": {"dataType":"double","required":true},
             "access_token": {"dataType":"string"},
-            "user": {"dataType":"any"},
         },
         "additionalProperties": false,
     },
@@ -143,11 +141,11 @@ const models: TsoaRoute.Models = {
     "googleLoginResponse": {
         "dataType": "refObject",
         "properties": {
+            "id": {"dataType":"double"},
             "msg": {"dataType":"string","required":true},
             "status": {"dataType":"double","required":true},
             "access_token": {"dataType":"string"},
             "refresh_token": {"dataType":"string"},
-            "user": {"dataType":"any"},
             "name": {"dataType":"string"},
         },
         "additionalProperties": false,

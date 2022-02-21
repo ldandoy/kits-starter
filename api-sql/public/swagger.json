@@ -145,6 +145,7 @@
 				},
 				"required": [
 					"name",
+					"account",
 					"password"
 				],
 				"type": "object",
@@ -164,8 +165,7 @@
 					},
 					"refresh_token": {
 						"type": "string"
-					},
-					"user": {}
+					}
 				},
 				"required": [
 					"msg",
@@ -230,8 +230,7 @@
 					},
 					"access_token": {
 						"type": "string"
-					},
-					"user": {}
+					}
 				},
 				"required": [
 					"status"
@@ -241,6 +240,10 @@
 			},
 			"googleLoginResponse": {
 				"properties": {
+					"id": {
+						"type": "number",
+						"format": "double"
+					},
 					"msg": {
 						"type": "string"
 					},
@@ -254,7 +257,6 @@
 					"refresh_token": {
 						"type": "string"
 					},
-					"user": {},
 					"name": {
 						"type": "string"
 					}

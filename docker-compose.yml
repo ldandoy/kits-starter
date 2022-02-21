@@ -1,15 +1,15 @@
 version: '3'
 services:
-  mysql:
-     image: mysql
-     container_name: db_api_sql
-#     restart: always
-     volumes:
-       - db-data:/var/lib/mysql
-     environment:
-       MYSQL_ALLOW_EMPTY_PASSWORD: 'yes'
-     networks:
-      - dev
+#   maildev:
+#     image: maildev/maildev
+#     container_name: maildev_startkit
+#     command: bin/maildev --web 80 --smtp 25 --hide-extensions STARTTLS
+#     ports:
+#       - 8081:80
+#       - 25:25
+# #    restart: always
+#     networks:
+#       - dev
 
 #   mongodb:
 #     image: mongo:5.0
@@ -21,17 +21,6 @@ services:
 #       - 27016:27017
 #     volumes:
 #       - db-data:/data/db
-#     networks:
-#       - dev
-
-#   maildev:
-#     image: maildev/maildev
-#     container_name: maildev_startkit
-#     command: bin/maildev --web 80 --smtp 25 --hide-extensions STARTTLS
-#     ports:
-#       - 8081:80
-#       - 25:25
-# #    restart: always
 #     networks:
 #       - dev
 
@@ -58,7 +47,32 @@ services:
 #       - mongodb
 #     networks:
 #       - dev
-    
+
+  phpmyadmin:
+    image: phpmyadmin
+    container_name: phpmyadmin_startkit
+#    restart: always
+    depends_on:
+      - db
+    ports:
+      - 8080:80
+    environment:
+      PMA_HOST: db
+      UPLOAD_LIMIT: 64M
+    networks:
+      - dev
+
+  mysql:
+    image: mysql
+    container_name: mysql_startkit
+#     restart: always
+    volumes:
+      - db-data:/var/lib/mysql
+    environment:
+      MYSQL_ALLOW_EMPTY_PASSWORD: 'yes'
+    networks:
+    - dev
+
   apisql:
     container_name: apisql_startkit
     build:
@@ -83,22 +97,22 @@ services:
     networks:
       - dev
 
-  front:
-    container_name: front_startkit
-    build:
-      context: ./front-react
-      dockerfile: Dockerfile.dev
-    volumes:
-      - ./front-react:/app
-    ports:
-      - 3000:3000
+#  front:
+#    container_name: front_startkit
+#    build:
+#      context: ./front-react
+#      dockerfile: Dockerfile.dev
+#    volumes:
+#      - ./front-react:/app
+#    ports:
+#      - 3000:3000
 #    restart: always
-    external_links:
-      - apisql # or apimongo
-    depends_on:
-      - apisql # or apimongo
-    networks:
-      - dev
+#    external_links:
+#      - apisql # or apimongo
+#    depends_on:
+#      - apisql # or apimongo
+#    networks:
+#      - dev
 
 networks:
   dev:
