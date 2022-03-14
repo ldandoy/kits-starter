@@ -1,0 +1,9 @@
+export const validPhone = (phone: string) => {
+    const re = /^[+]/g
+    return re.test(phone)
+}
+
+export const validEmail = (email: string) => {
+    const re = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
+    return re.test(String(email).toLowerCase())
+}
