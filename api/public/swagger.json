@@ -247,6 +247,39 @@
 				],
 				"type": "object",
 				"additionalProperties": false
+			},
+			"updateUserResponse": {
+				"properties": {
+					"msg": {
+						"type": "string"
+					},
+					"status": {
+						"type": "number",
+						"format": "double"
+					}
+				},
+				"required": [
+					"msg",
+					"status"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"updateUserParams": {
+				"properties": {
+					"avatar": {
+						"type": "string"
+					},
+					"name": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"avatar",
+					"name"
+				],
+				"type": "object",
+				"additionalProperties": false
 			}
 		},
 		"securitySchemes": {}
@@ -440,6 +473,64 @@
 		"/api/auth/reset_password/{reset_token}": {
 			"post": {
 				"operationId": "Reset_password",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/resetPasswordResponse"
+								}
+							}
+						}
+					}
+				},
+				"security": [],
+				"parameters": [],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/resetPasswordParams"
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/user/me": {
+			"patch": {
+				"operationId": "UpdateUser",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/updateUserResponse"
+								}
+							}
+						}
+					}
+				},
+				"security": [],
+				"parameters": [],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/updateUserParams"
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/user/reset_password": {
+			"patch": {
+				"operationId": "ResetPassword",
 				"responses": {
 					"200": {
 						"description": "Ok",

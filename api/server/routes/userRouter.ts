@@ -7,7 +7,7 @@ import userCtrl from '../controllers/userCtrl'
 
 
 const Router = express.Router()
-const userCtrl = new userCtrl()
+const ctrl = new userCtrl()
 
 const storage = multer.diskStorage({
     destination: "./public/upload/",
@@ -22,12 +22,12 @@ const upload = multer({
 })
 
 Router.patch('/me', auth, upload.single('avatar') , async (req :Request, res :Response) => {   
-    const response = await userCtrl.updateUser(req.body, req)
+    const response = await ctrl.updateUser(req.body, req)
     return res.status(response.status).json({msg: response.msg})
 })
 
 Router.patch('/reset_password', auth, async (req :Request, res :Response) => {
-    const response = await userCtrl.resetPassword(req.body, req)
+    const response = await ctrl.resetPassword(req.body, req)
     return res.status(response.status).json({msg: response.msg})
 })
 

@@ -36,6 +36,7 @@ import routes from './routes/index'
 
 // Routes
 app.use('/api/auth', routes.authRouter)
+app.use('/api/user', routes.userRouter)
 
 app.get('/', (request: express.Request, response: express.Response) => {
     response.status(200).json({msg: "it works !"})

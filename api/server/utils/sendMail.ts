@@ -21,7 +21,7 @@ const sendEmail = async (to:string, subject: string, html: string) => {
                 refreshToken: process.env.GOOGLE_REFRESH_TOKEN
             }
         })*/
-
+        
         const transport = nodemailer.createTransport({
             host: "maildev",
             port: 25,

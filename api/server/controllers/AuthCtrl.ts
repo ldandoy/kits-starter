@@ -19,7 +19,7 @@ import { IDecodedToken } from '../interfaces/auth/token'
 import { User } from '../interfaces/models/user'
 
 @Route("/api/auth")
-export default class authCtrl {
+export class authCtrl {
     @Post("/register")
     public async register (@Body() body :registerParams ): Promise<registerResponse> {
         try {
@@ -50,7 +50,8 @@ export default class authCtrl {
 
             const url = `${process.env.BASE_URL}/active/${active_token}`
 
-            if (validEmail(account)) {
+            if (validEmail(account)) {                
+
                 if (process.env.SEND === "true") {
                     const html = '<h1>Bonjour</h1><p>Merci de valider votre compte <a href="' + url + '">en cliquant ici</a></p>'
                     sendMail(account, "Active your account", html)
@@ -346,3 +347,5 @@ export default class authCtrl {
         }
     }
 }
+
+export default authCtrl;

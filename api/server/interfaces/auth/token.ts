@@ -1,5 +1,5 @@
 export interface IDecodedToken {
-    id?: string
+    id?: number
     newUser?: any
     iat: number
     exp:number
