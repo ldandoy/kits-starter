@@ -52,7 +52,7 @@ const LoginPass =  () => {
                 </div>
             </div>
             <div className="form-group">
-                <button className="btn bg-green txt-white-100 w-100 p-20"
+                <button className="btn bg-success txt-white-100 w-100 p-20"
                 disabled={(account && password) ? false : true}
                 >
                     {!isLoading ? "Connexion" : "Chargement..." }

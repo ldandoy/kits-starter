@@ -24,9 +24,7 @@ export class authCtrl {
     public async register (@Body() body :registerParams ): Promise<registerResponse> {
         try {
             const { name, account , password } = body
-            const user = userModel.findOne({
-                where: {account}
-            })
+            const user = userModel.findByPk(account)
             
             if(!user) {
                 return {
@@ -41,7 +39,7 @@ export class authCtrl {
                 name,
                 account,
                 password: passwordhash,
-                role: 'user',
+                role: 'admin',
                 type: 'normal',
                 reset_token: ''
             })
@@ -50,14 +48,11 @@ export class authCtrl {
 
             const url = `${process.env.BASE_URL}/active/${active_token}`
 
-            if (validEmail(account)) {                
-
-                if (process.env.SEND === "true") {
-                    const html = '<h1>Bonjour</h1><p>Merci de valider votre compte <a href="' + url + '">en cliquant ici</a></p>'
-                    sendMail(account, "Active your account", html)
-                }
+            if (validEmail(account)) {               
+                const html = '<h1>Bonjour</h1><p>Merci de valider votre compte <a href="' + url + '">en cliquant ici</a></p>'
+                sendMail(account, "Active your account", html)
             
-                return { 
+                return {
                     msg: 'Bravo ! Vous avez reçu un email pour activer votre compte.',
                     status: 200
                 }
@@ -191,6 +186,7 @@ export class authCtrl {
             }
 
             const access_token = generateAccessToken({id: user.id})
+            console.log(access_token)
 
             return {
                 status: 200,
@@ -277,7 +273,9 @@ export class authCtrl {
         try {
             const { account } = body
 
-            const user = await userModel.findByPk(account)
+            const user = await userModel.findOne({
+                where: {account}
+            })
     
             if (user) {
                 if (user.type === "normal") {
@@ -285,7 +283,7 @@ export class authCtrl {
                     
                     await userModel.update({
                         reset_token
-                    }, {where : {_id: user.id}})
+                    }, {where : {id: user.id}})
 
                     const url = `${process.env.BASE_URL}/reset_password/${reset_token}`
                     const html = '<h1>Bonjour</h1><p>Pour mettre à jour votre mot de passe <a href="' + url + '">cliquer ici</a></p><p>Vous avez 24h</p>'

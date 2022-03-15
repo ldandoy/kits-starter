@@ -33,7 +33,7 @@ const ForgotPass =  () => {
                 <input type="text" name="account" value={account} className="form-input" onChange={onChangeInputHandler} placeholder="Renseigner l'email du compte à réinitialiser" />
             </div>
             <div className="form-group">
-                <button className="btn bg-green txt-white-100 w-100 p-20"
+                <button className="btn bg-success txt-white-100 w-100 p-20"
                 disabled={account ? false : true}
                 >
                     Envoyer

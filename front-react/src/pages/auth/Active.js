@@ -30,7 +30,7 @@ const Active = () => {
 
     return (<div className="card w-50 mx-auto bg-white">
         <div className="card-title txt-center txt-green">
-            <img src="/mjv-blanc-vert.png" width={150} alt="logo" />
+            <img src="/logo-auth.png" width={150} alt="logo-auth" />
         </div>
         <div className="card-title txt-center txt-gray-900">
             <h1>Activation de votre compte</h1>

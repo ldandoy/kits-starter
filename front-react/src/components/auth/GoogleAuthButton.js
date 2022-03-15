@@ -32,7 +32,7 @@ const GoogleAuthButton =  () => {
         <GoogleLogin
             clientId={process.env.REACT_APP_GOOGLE_CLIENT_ID}
             isSignedIn={false}
-            buttonText="Connection avec Google"
+            buttonText="Connexion avec Google"
             accessType="offline"
             onSuccess={onSuccessHandler}
             onFailure={onFailureHandler}

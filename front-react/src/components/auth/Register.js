@@ -68,7 +68,7 @@ const Register =  () => {
                 </div>
             </div>
             <div className="form-group">
-                <button className="btn bg-green txt-white-100 w-100 p-20"
+                <button className="btn bg-success txt-white-100 w-100 p-20"
                 disabled={(name && account && password) ? false : true}
                 >
                     {!isLoading ? "Enregistrez" : "Chargement..." }

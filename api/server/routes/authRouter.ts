@@ -8,7 +8,6 @@ const authCtrl = new AuthCtrl()
 
 Router.post('/register', validRegister, async (request :Request, response :Response) => {
     const registerReturn = await authCtrl.register(request.body)
-    
     return response.status(registerReturn.status).json(registerReturn.msg)
 })
 
