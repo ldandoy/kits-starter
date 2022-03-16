@@ -109,9 +109,9 @@ services:
       - 3000:3000
 #    restart: always
     external_links:
-      - api # or apimongo
+      - apisql # or apimongo
     depends_on:
-      - api # or apimongo
+      - apisql # or apimongo
     networks:
       - dev
 
