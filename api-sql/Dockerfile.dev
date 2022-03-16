@@ -1,4 +1,4 @@
-FROM node:16.13.1
+FROM node:current-alpine3.15
 
 WORKDIR /app
 
@@ -10,11 +10,7 @@ COPY tsoa.json ./
 
 COPY server ./server
 
-RUN ls -a
-
-RUN npm install && npm install --only=dev
-
-RUN npm install -g tsoa ts-node-dev
+RUN npm install --quiet && npm install -g tsoa ts-node-dev --quiet
 
 EXPOSE 5000
 

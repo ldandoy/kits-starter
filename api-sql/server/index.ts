@@ -7,15 +7,12 @@ import cookieParser from 'cookie-parser'
 import morgan from 'morgan'
 import swaggerUi from "swagger-ui-express"
 
-import routes from './routes/index'
-
 // Middleware
 const app = express()
 app.use(express.json())
 app.use(express.urlencoded({ extended: false }))
-console.log(process.env.BASE_URL)
 app.use(cors({
-    origin: [`${process.env.BASE_URL}`, 'http://127.0.0.1:3000'],
+    origin: ['http://127.0.0.1:3000', `${process.env.BASE_URL}`],
     credentials: true,
 }))
 app.use(morgan('dev'))
@@ -35,13 +32,14 @@ app.use(
     })
 )
 
+import routes from './routes/index'
+
 // Routes
 app.use('/api/auth', routes.authRouter)
 app.use('/api/user', routes.userRouter)
-app.use('/api/admin/users', routes.adminUserRouter )
 
-app.get('/', (req, res) => {
-    res.status(200).json({msg: "it works !"})
+app.get('/', (request: express.Request, response: express.Response) => {
+    response.status(200).json({msg: "it works !"})
 })
 
 /**

@@ -21,7 +21,7 @@ const sendEmail = async (to:string, subject: string, html: string) => {
                 refreshToken: process.env.GOOGLE_REFRESH_TOKEN
             }
         })*/
-
+        
         const transport = nodemailer.createTransport({
             host: "maildev",
             port: 25,
@@ -29,7 +29,7 @@ const sendEmail = async (to:string, subject: string, html: string) => {
         })
 
         // verify connection configuration
-        await transport.verify(function(error, success) {
+        await transport.verify(function(error) {
             if (error) {
                 console.log(error);
             } else {

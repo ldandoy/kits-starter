@@ -1,39 +1,44 @@
 import express, { Request, Response } from 'express'
 
-import { authCtrl } from '../controllers/authCtrl'
+import AuthCtrl from '../controllers/AuthCtrl'
 import { validRegister } from '../middlewares/valid'
 
 const Router = express.Router()
-const ctrl = new authCtrl()
+const authCtrl = new AuthCtrl()
 
-Router.post('/register', validRegister, async (req :Request, res :Response) => {
-    const response = await ctrl.register(req.body)
-    return res.status(response.status).json(response.msg)
+Router.post('/register', validRegister, async (request :Request, response :Response) => {
+    const registerReturn = await authCtrl.register(request.body)
+    return response.status(registerReturn.status).json(registerReturn.msg)
 })
 
-Router.post('/login', async (req :Request, res :Response) => {
-    const response = await ctrl.login(req.body)
-    res.cookie('refreshtoken', response.refresh_token, {
+Router.post('/login', async (request :Request, response :Response) => {
+    const loginReturn = await authCtrl.login(request.body)
+    
+    response.cookie('refreshtoken', loginReturn.refresh_token, {
         httpOnly: true,
         path: `/api/auth/refresh_token`,
         maxAge: 30*24*60*60*1000
     })
-    return res.status(response.status).json({user: response?.user, acces_token: response.access_token})
+
+    return response.status(loginReturn.status).json({
+        user: loginReturn?.user,
+        acces_token: loginReturn?.access_token
+    })
 })
 
 Router.post('/active', async (req :Request, res :Response) => {
-    const response = await ctrl.activeAccount(req.body)
+    const response = await authCtrl.activeAccount(req.body)
     return res.status(response.status).json(response.msg)
 })
 
 Router.get('/logout',  async (req :Request, res :Response) => {
-    ctrl.logout()
+    authCtrl.logout()
     res.clearCookie('refreshtoken', { path: `/api/auth/refresh_token` })
     return res.status(200).json({msg: "Logout"})
 })
 
 Router.get('/refresh_token',  async (req :Request, res :Response) => {
-    const response = await ctrl.refreshToken(req)
+    const response = await authCtrl.refreshToken(req)
     
     if (response.status === 500) {
         return res.status(response.status).json({
@@ -49,7 +54,7 @@ Router.get('/refresh_token',  async (req :Request, res :Response) => {
 })
 
 Router.post('/google_login', async (req :Request, res :Response) => {
-    const response = await ctrl.googleLogin(req.body)
+    const response = await authCtrl.googleLogin(req.body)
     res.cookie('refreshtoken', response.refresh_token, {
         httpOnly: true,
         path: `/api/auth/refresh_token`,
@@ -59,12 +64,12 @@ Router.post('/google_login', async (req :Request, res :Response) => {
 })
 
 Router.post('/forgot_password', async (req :Request, res :Response) => {
-    const response = await ctrl.forgot_password(req.body)
+    const response = await authCtrl.forgot_password(req.body)
     return res.status(response.status).json(response.msg)
 })
 
 Router.post('/reset_password/:reset_token', async (req :Request, res :Response) => {
-    const response = await ctrl.reset_password(req.body)
+    const response = await authCtrl.reset_password(req.body)
     return res.status(response.status).json(response.msg)
 })
 

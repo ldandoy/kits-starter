@@ -1,9 +1,9 @@
 import { Sequelize, DataTypes } from 'sequelize';
-import { IUser } from '../config/interfaces';
+import { User } from '../interfaces/models/user';
 
-const sequelize = new Sequelize('sqlite::memory:');
+import link from '../config/database'
 
-const userSchema = sequelize.define<IUser>('User', {
+const userSchema = link.define<User>('User', {
     id: {
         type: DataTypes.INTEGER,
         primaryKey: true,

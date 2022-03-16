@@ -1,39 +1,30 @@
-import express from 'express'
+import { Post, Get, Route, Body, Request } from "tsoa"
 import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
 import { OAuth2Client } from 'google-auth-library'
 import md5 from 'md5'
-import { Post, Get, Route, Body, Request } from "tsoa"
 
 import userModel from '../models/userModel'
-import { generateActiveToken, generateAccessToken, generateRefreshToken } from '../utils/generateToken'
 import sendMail from '../utils/sendMail'
-import { validEmail } from '../middlewares/valid'
-
-import { IDecodedToken, IGgPayload, IUser } from '../config/interfaces'
-import { registerResponse, registerParams } from '../config/interfaces/auth/register'
-import { loginResponse, loginParams } from '../config/interfaces/auth/login'
-import { activeResponse, activeParams } from '../config/interfaces/auth/active'
-import { refreshTokenResponse } from '../config/interfaces/auth/refreshToken'
-import { googleLoginResponse, googleLoginParams } from '../config/interfaces/auth/googleLogin'
-import { forgotPasswordResponse, forgotPasswordParams } from '../config/interfaces/auth/forgotPassword'
-import { resetPasswordResponse, resetPasswordParams } from '../config/interfaces/auth/resetPassword'
-
-
-
-
-const client = new OAuth2Client(`${process.env.GOOGLE_CLIENT_ID}`)
+import { validEmail } from '../utils/valid'
+import { generateActiveToken, generateAccessToken, generateRefreshToken } from '../utils/generateToken'
+import { registerResponse, registerParams } from '../interfaces/auth/register'
+import { loginParams, loginResponse } from '../interfaces/auth/login'
+import { activeParams, activeResponse } from '../interfaces/auth/active'
+import { refreshTokenRequest, refreshTokenResponse } from '../interfaces/auth/refreshToken'
+import { IGgPayload, googleLoginParams, googleLoginResponse } from '../interfaces/auth/google'
+import { forgotPasswordParams, forgotPasswordResponse } from '../interfaces/auth/forgotPassword'
+import { resetPasswordParams, resetPasswordResponse } from '../interfaces/auth/resetPassword'
+import { IDecodedToken } from '../interfaces/auth/token'
+import { User } from '../interfaces/models/user'
 
 @Route("/api/auth")
 export class authCtrl {
-
     @Post("/register")
     public async register (@Body() body :registerParams ): Promise<registerResponse> {
         try {
             const { name, account , password } = body
-            const user = userModel.findOne({
-                where: {account}
-            })
+            const user = userModel.findByPk(account)
             
             if(!user) {
                 return {
@@ -44,11 +35,11 @@ export class authCtrl {
 
             const passwordhash = await bcrypt.hash(password, 12)
 
-            const newUser: IUser = userModel.build({
+            const newUser: User = userModel.build({
                 name,
                 account,
                 password: passwordhash,
-                role: 'user',
+                role: 'admin',
                 type: 'normal',
                 reset_token: ''
             })
@@ -57,13 +48,11 @@ export class authCtrl {
 
             const url = `${process.env.BASE_URL}/active/${active_token}`
 
-            if (validEmail(account)) {
-                if (process.env.SEND === "true") {
-                    const html = '<h1>Bonjour</h1><p>Merci de valider votre compte <a href="' + url + '">en cliquant ici</a></p>'
-                    sendMail(account, "Active your account", html)
-                }
+            if (validEmail(account)) {               
+                const html = '<h1>Bonjour</h1><p>Merci de valider votre compte <a href="' + url + '">en cliquant ici</a></p>'
+                sendMail(account, "Active your account", html)
             
-                return { 
+                return {
                     msg: 'Bravo ! Vous avez reçu un email pour activer votre compte.',
                     status: 200
                 }
@@ -165,12 +154,12 @@ export class authCtrl {
     }
     @Get("/logout")
     public logout() : void {
-
     }
     @Get("/refresh_token")
-    public async refreshToken (@Request() req: express.Request): Promise<refreshTokenResponse> {
+    public async refreshToken (@Request() req: refreshTokenRequest): Promise<refreshTokenResponse> {
         try {
             const rf_token = req.cookies.refreshtoken
+            
             if (!rf_token) {
                 return{
                     msg: "Merci de vous authentifier !",
@@ -197,6 +186,7 @@ export class authCtrl {
             }
 
             const access_token = generateAccessToken({id: user.id})
+            console.log(access_token)
 
             return {
                 status: 200,
@@ -215,6 +205,8 @@ export class authCtrl {
     public async googleLogin (@Body() body : googleLoginParams ): Promise<googleLoginResponse> {
         try {
             const { id_token } = body
+            const client = new OAuth2Client(`${process.env.GOOGLE_CLIENT_ID}`)
+            
             const verify = await client.verifyIdToken({ 
                 idToken: id_token,
                 audience: `${process.env.GOOGLE_CLIENT_ID}`
@@ -281,7 +273,9 @@ export class authCtrl {
         try {
             const { account } = body
 
-            const user = await userModel.findByPk(account)
+            const user = await userModel.findOne({
+                where: {account}
+            })
     
             if (user) {
                 if (user.type === "normal") {
@@ -289,7 +283,7 @@ export class authCtrl {
                     
                     await userModel.update({
                         reset_token
-                    }, {where : {_id: user.id}})
+                    }, {where : {id: user.id}})
 
                     const url = `${process.env.BASE_URL}/reset_password/${reset_token}`
                     const html = '<h1>Bonjour</h1><p>Pour mettre à jour votre mot de passe <a href="' + url + '">cliquer ici</a></p><p>Vous avez 24h</p>'
@@ -351,3 +345,5 @@ export class authCtrl {
         }
     }
 }
+
+export default authCtrl;

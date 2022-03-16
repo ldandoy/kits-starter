@@ -1,14 +1,15 @@
 import { Sequelize } from 'sequelize';
 
-const URI = process.env.BDD_URL
+const sequelize = new Sequelize(`${process.env.DATABASE_URL}`, {query:{raw:true}})
 
-const sequelize = new Sequelize(`${URI}`, {query:{raw:true}})
+// console.log(process.env.DATABASE_URL)
 
 try {
     sequelize.authenticate();
     console.log('Connection has been established successfully.');
+    sequelize.sync();
 } catch (error) {
     console.error('Unable to connect to the database:', error);
 }
 
-module.exports = sequelize;
+export default sequelize

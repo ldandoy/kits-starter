@@ -50,13 +50,13 @@ services:
     networks:
       - dev
 
-  api:
-    container_name: api_startkit
+  apisql:
+    container_name: apisql_startkit
     build:
-      context: ./api
+      context: ./api-sql
       dockerfile: Dockerfile.dev
     volumes:
-      - ./api:/app
+      - ./api-sql:/app
       - /app/node_modules
     environment:
       - PORT=5000
