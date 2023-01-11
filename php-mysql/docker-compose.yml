@@ -26,6 +26,7 @@ services:
       - ./app:/var/www
       - ./php8.1/www.conf:/usr/local/etc/php-fpm.d/www.conf
       - ./php8.1/zz-docker.conf:/usr/local/etc/php-fpm.d/zz-docker.conf
+      - ./php8.1/custom.ini:/usr/local/etc/php/conf.d/custom.ini
     depends_on:
       - mysql
     networks:
