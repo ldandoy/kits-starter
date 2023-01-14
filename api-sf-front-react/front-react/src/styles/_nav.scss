@@ -1,0 +1,21 @@
+.navbar {
+    @include themed {
+        background-color: t("base3");
+    }
+
+    span[role="button"] {
+        cursor: pointer;
+        display: block;
+        margin: 0 20px;
+
+        .yellow {
+            color: $yellow;
+        }
+    }
+
+    .navbar-link {
+        @include themed {
+            color: t("base0");
+        }
+    }
+}
