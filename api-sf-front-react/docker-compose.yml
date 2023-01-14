@@ -69,5 +69,18 @@ services:
     networks:
       - kits-starter
 
+  front:
+    container_name: front_starter_kit
+    build:
+      context: ./front-react
+      dockerfile: ../node/Dockerfile
+    volumes:
+      - ./front-react:/app
+      - /app/node_modules
+    ports:
+      - 5173:5173
+    networks:
+      - kits-starter
+
 networks:
   kits-starter:
