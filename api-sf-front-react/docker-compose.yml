@@ -18,12 +18,12 @@ services:
   php:
     container_name: php_starter_kit
     build:
-      context: ./app
+      context: ./sf
       dockerfile: ../php8.1/Dockerfile
     ports:
       - '9000:9000'
     volumes:
-      - ./app:/var/www
+      - ./sf:/var/www
       - ./php8.1/www.conf:/usr/local/etc/php-fpm.d/www.conf
       - ./php8.1/zz-docker.conf:/usr/local/etc/php-fpm.d/zz-docker.conf
       - ./php8.1/custom.ini:/usr/local/etc/php/conf.d/custom.ini
@@ -38,7 +38,7 @@ services:
     ports:
       - '8003:80'
     volumes:
-      - ./app:/var/www
+      - ./sf:/var/www
       - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
     depends_on:
       - php
