@@ -6,7 +6,7 @@ import {DarkModeContext} from '../contexts/DarkModeContext'
 const Default = ({children}) => {
     const { darkMode } = useContext(DarkModeContext);
 
-    return (<div className={`${darkMode ? "theme--dark" : "theme--light"}`}>
+    return (<div className={`mt-70 ${darkMode ? "theme--dark" : "theme--light"}`}>
         <Navbar />
         <div className={`container`}>
             <div className='content'>
